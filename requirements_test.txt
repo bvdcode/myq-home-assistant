@@ -1,0 +1,4 @@
+mypy==2.3.0
+pytest-homeassistant-custom-component==0.13.348
+python-semantic-release==10.6.1
+ruff==0.16.1

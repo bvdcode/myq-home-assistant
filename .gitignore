@@ -1,0 +1,9 @@
+notes/
+AGENTS.md
+.env
+*.local.json
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

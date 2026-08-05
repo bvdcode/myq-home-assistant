@@ -1,0 +1,96 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect MyQ",
+        "description": "Enter the credentials for your MyQ account.",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "mfa_method": "Send verification codes by"
+        }
+      },
+      "mfa": {
+        "title": "Verification code",
+        "description": "Enter the six-digit verification code sent for {email}.",
+        "data": {
+          "code": "Verification code"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reconnect MyQ",
+        "description": "Enter the current password for {email}.",
+        "data": {
+          "password": "Password",
+          "mfa_method": "Send verification codes by"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Verification code",
+        "description": "Enter the six-digit verification code sent for {email}.",
+        "data": {
+          "code": "Verification code"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "The sign-in session expired. Start again.",
+      "cannot_connect": "Unable to connect to MyQ.",
+      "cloudflare_challenge": "MyQ blocked the sign-in request with a browser challenge. Try again later.",
+      "invalid_auth": "The email address or password is incorrect.",
+      "invalid_mfa": "The verification code is invalid or expired.",
+      "unknown": "Unexpected MyQ error. Check the logs for details."
+    },
+    "abort": {
+      "cannot_connect": "Authentication succeeded, but MyQ device discovery could not be reached.",
+      "no_devices": "No garage doors were found on this MyQ account.",
+      "reauth_successful": "MyQ was reconnected successfully.",
+      "unknown": "MyQ returned an unexpected response."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "Email",
+        "sms": "Text message (SMS)"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "vacation_mode": {
+        "name": "Vacation mode"
+      },
+      "work_light": {
+        "name": "Work light"
+      },
+      "active_fault": {
+        "name": "Active fault"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Garage door"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Battery backup state"
+      },
+      "absolute_cycle_count": {
+        "name": "Absolute cycle count"
+      },
+      "service_cycle_count": {
+        "name": "Service cycle count"
+      },
+      "last_activation_source": {
+        "name": "Last activation source"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "The MyQ garage-door command failed."
+    }
+  }
+}
