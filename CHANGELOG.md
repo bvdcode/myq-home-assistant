@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.3 (2026-08-06)
+
+### Bug Fixes
+
+- Send browser headers on authorization
+  ([`89069f3`](https://github.com/bvdcode/myq-home-assistant/commit/89069f31ef5b5a422346062fcc77fd5f4920e6e4))
+
+
 ## v0.1.2 (2026-08-06)
 
 ### Bug Fixes
