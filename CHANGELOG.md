@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.4 (2026-08-06)
+
+### Bug Fixes
+
+- Clarify verification code prompt
+  ([`a5e8b5d`](https://github.com/bvdcode/myq-home-assistant/commit/a5e8b5d6463ffd7426a536948946f0836966af5e))
+
+
 ## v0.1.3 (2026-08-06)
 
 ### Bug Fixes
