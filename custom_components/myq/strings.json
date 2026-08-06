@@ -12,7 +12,7 @@
       },
       "mfa": {
         "title": "Verification code",
-        "description": "Enter the six-digit verification code sent for {email}.",
+        "description": "Enter the six-digit verification code you received.",
         "data": {
           "code": "Verification code"
         }
@@ -27,7 +27,7 @@
       },
       "reauth_mfa": {
         "title": "Verification code",
-        "description": "Enter the six-digit verification code sent for {email}.",
+        "description": "Enter the six-digit verification code you received.",
         "data": {
           "code": "Verification code"
         }

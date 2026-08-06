@@ -193,7 +193,6 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id=step_id,
             data_schema=MFA_SCHEMA,
             errors=errors,
-            description_placeholders={"email": self._required_email()},
         )
 
     async def _async_start_login(self, password: str) -> LoginAttempt:
