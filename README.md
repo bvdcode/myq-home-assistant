@@ -30,6 +30,8 @@ from other regions are welcome.
 
 The integration can be installed through HACS as a custom repository.
 
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bvdcode&repository=myq-home-assistant&category=integration)
+
 1. Open **HACS**.
 2. Select **Integrations**.
 3. Open the menu and select **Custom repositories**.
@@ -38,6 +40,8 @@ The integration can be installed through HACS as a custom repository.
 5. Install **MyQ** and restart Home Assistant.
 
 ## Configuration
+
+[![Open your Home Assistant instance and start setting up MyQ.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=myq)
 
 1. Open **Settings → Devices & services**.
 2. Select **Add integration**.
