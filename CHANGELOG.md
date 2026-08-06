@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.1 (2026-08-06)
+
+### Bug Fixes
+
+- Detach login HTTP session
+  ([`f268cb5`](https://github.com/bvdcode/myq-home-assistant/commit/f268cb50092c431b8a3ee4873858ba7d8164fe24))
+
+
 ## v0.1.0 (2026-08-05)
 
 - Added the initial Home Assistant config flow with email and SMS verification.
