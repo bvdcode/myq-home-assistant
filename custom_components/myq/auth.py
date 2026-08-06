@@ -143,7 +143,11 @@ class MyQLoginSession:
     ) -> OAuthTokens | None:
         authorization_url, verifier = _authorization_url()
         self._verifier = verifier
-        page = await self._request_page("GET", authorization_url)
+        page = await self._request_page(
+            "GET",
+            authorization_url,
+            headers=_login_headers(),
+        )
         authorization_code, page = await self._follow_redirects(page)
         if authorization_code is not None:
             return await self._async_exchange_code(authorization_code)

@@ -119,6 +119,8 @@ async def test_login_selects_email_and_exchanges_code() -> None:
     login = MyQLoginSession(cast(ClientSession, session))
 
     assert await login.async_start("driver@example.com", "secret", MFA_METHOD_EMAIL) is None
+    authorize_call = session.calls[0]
+    assert authorize_call.kwargs["headers"]["User-Agent"].startswith("Mozilla/5.0")
     switch_call = session.calls[4]
     assert switch_call.method == "GET"
     assert "selectedMfaMethod=Email" in switch_call.url
