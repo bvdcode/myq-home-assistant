@@ -10,7 +10,7 @@ from aiohttp import ClientSession
 
 from custom_components.myq.auth import MyQAuth, MyQLoginSession
 from custom_components.myq.const import MFA_METHOD_EMAIL
-from custom_components.myq.exceptions import MyQInvalidMfaError
+from custom_components.myq.exceptions import MyQApiError, MyQInvalidMfaError
 from custom_components.myq.models import OAuthTokens
 
 
@@ -172,6 +172,33 @@ async def test_invalid_mfa_can_be_retried() -> None:
 
     tokens = await login.async_submit_mfa("123456")
     assert tokens.refresh_token == "refresh"
+
+
+async def test_missing_login_form_reports_safe_page_summary() -> None:
+    session = FakeSession(
+        request_responses=[
+            FakeResponse(
+                "",
+                302,
+                headers={"Location": "/blocked?state=secret"},
+            ),
+            FakeResponse(
+                "",
+                403,
+                "<html><title>Access denied</title><body>Request blocked.</body></html>",
+            ),
+        ]
+    )
+    login = MyQLoginSession(cast(ClientSession, session))
+
+    with pytest.raises(
+        MyQApiError,
+        match=(
+            r"HTTP 403 at /blocked, title='Access denied', "
+            r"content='Access denied Request blocked\.'"
+        ),
+    ):
+        await login.async_start("driver@example.com", "secret", MFA_METHOD_EMAIL)
 
 
 async def test_expired_access_token_refreshes_once_for_concurrent_callers() -> None:

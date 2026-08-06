@@ -149,7 +149,7 @@ class MyQLoginSession:
             return await self._async_exchange_code(authorization_code)
         _raise_for_challenge(page.body)
 
-        form = _login_form(page.body)
+        form = _login_form(page)
         fields = dict(form.fields)
         fields[cast(str, form.email_field)] = email_address
         fields[cast(str, form.password_field)] = password
@@ -556,14 +556,35 @@ def _parse_forms(page_html: str) -> list[ParsedForm]:
     return forms
 
 
-def _login_form(page_html: str) -> ParsedForm:
+def _login_form(page: HttpPage) -> ParsedForm:
     form = next(
-        (candidate for candidate in _parse_forms(page_html) if candidate.password_field),
+        (candidate for candidate in _parse_forms(page.body) if candidate.password_field),
         None,
     )
     if form is None or form.email_field is None or not form.action:
-        raise MyQApiError("The MyQ sign-in form was not found")
+        raise MyQApiError(f"The MyQ sign-in form was not found ({_page_summary(page)})")
     return form
+
+
+def _page_summary(page: HttpPage) -> str:
+    path = urllib.parse.urlsplit(page.url).path or "/"
+    title_match = re.search(
+        r"<title\b[^>]*>(.*?)</title>",
+        page.body,
+        re.IGNORECASE | re.DOTALL,
+    )
+    title = _plain_text(title_match.group(1)) if title_match else ""
+    content = _plain_text(page.body)
+    parts = [f"HTTP {page.status} at {path}"]
+    if title:
+        parts.append(f"title={title[:120]!r}")
+    if content:
+        parts.append(f"content={content[:240]!r}")
+    return ", ".join(parts)
+
+
+def _plain_text(value: str) -> str:
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", value))).strip()
 
 
 def _otp_form(page_html: str) -> ParsedForm:
