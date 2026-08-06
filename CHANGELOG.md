@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.2 (2026-08-06)
+
+### Bug Fixes
+
+- Improve identity page diagnostics
+  ([`14e2b13`](https://github.com/bvdcode/myq-home-assistant/commit/14e2b13c02dbf95b33c479f911d1f2c6fc9ecfb7))
+
+
 ## v0.1.1 (2026-08-06)
 
 ### Bug Fixes
