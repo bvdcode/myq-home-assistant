@@ -48,7 +48,6 @@ class FakeSession:
         self.request_responses = request_responses or []
         self.post_responses = post_responses or []
         self.calls: list[RecordedCall] = []
-        self.closed = False
 
     def request(self, method: str, url: str, **kwargs: Any) -> FakeResponse:
         self.calls.append(RecordedCall(method, url, kwargs))
@@ -61,9 +60,6 @@ class FakeSession:
         response = self.post_responses.pop(0)
         response.url = url
         return response
-
-    async def close(self) -> None:
-        self.closed = True
 
 
 LOGIN_HTML = """

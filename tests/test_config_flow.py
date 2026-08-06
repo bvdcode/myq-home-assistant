@@ -62,7 +62,7 @@ async def test_user_flow_creates_token_backed_entry_after_email_mfa(
     }
     assert "password" not in result["data"]
     assert result["result"].unique_id == EMAIL
-    mock_login_session.async_close.assert_awaited_once()
+    mock_login_session.http_session.detach.assert_called_once_with()
 
 
 async def test_user_flow_can_select_sms(
@@ -90,7 +90,7 @@ async def test_invalid_credentials_remain_on_user_form(
 
     assert result["type"] is data_entry_flow.FlowResultType.FORM
     assert result["errors"] == {"base": "invalid_auth"}
-    mock_login_session.async_close.assert_awaited_once()
+    mock_login_session.http_session.detach.assert_called_once_with()
 
 
 async def test_cloudflare_challenge_has_specific_error(
@@ -119,7 +119,7 @@ async def test_invalid_mfa_can_be_retried(
 
     assert result["type"] is data_entry_flow.FlowResultType.FORM
     assert result["errors"] == {"base": "invalid_mfa"}
-    mock_login_session.async_close.assert_not_awaited()
+    mock_login_session.http_session.detach.assert_not_called()
 
 
 async def test_user_flow_aborts_duplicate_account(hass: HomeAssistant) -> None:

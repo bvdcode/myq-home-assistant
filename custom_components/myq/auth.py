@@ -200,9 +200,6 @@ class MyQLoginSession:
             raise MyQInvalidMfaError(message or "MyQ rejected the MFA code")
         return await self._async_exchange_code(authorization_code)
 
-    async def async_close(self) -> None:
-        await self._session.close()
-
     async def _async_exchange_code(self, code: str) -> OAuthTokens:
         if self._verifier is None:
             raise MyQApiError("The PKCE verifier is missing")

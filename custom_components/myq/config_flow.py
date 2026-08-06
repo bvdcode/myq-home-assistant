@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import TypedDict, cast
 
 import voluptuous as vol
-from aiohttp import ClientError, CookieJar
+from aiohttp import ClientError, ClientSession, CookieJar
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers import selector
@@ -101,6 +101,7 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._email: str | None = None
         self._mfa_method: str | None = None
         self._login: MyQLoginSession | None = None
+        self._login_session: ClientSession | None = None
         self._reauth_entry: MyQConfigEntry | None = None
 
     async def async_step_user(
@@ -196,12 +197,13 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def _async_start_login(self, password: str) -> LoginAttempt:
-        await self._async_close_login()
+        self._close_login()
         session = async_create_clientsession(
             self.hass,
             auto_cleanup=False,
             cookie_jar=CookieJar(),
         )
+        self._login_session = session
         self._login = MyQLoginSession(session)
         try:
             tokens = await self._login.async_start(
@@ -210,17 +212,17 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._required_mfa_method(),
             )
         except MyQInvalidCredentialsError:
-            await self._async_close_login()
+            self._close_login()
             return LoginAttempt(error="invalid_auth")
         except MyQCloudflareChallengeError:
-            await self._async_close_login()
+            self._close_login()
             return LoginAttempt(error="cloudflare_challenge")
         except ClientError:
-            await self._async_close_login()
+            self._close_login()
             return LoginAttempt(error="cannot_connect")
         except MyQError:
             _LOGGER.exception("Unexpected MyQ error while starting authentication")
-            await self._async_close_login()
+            self._close_login()
             return LoginAttempt(error="unknown")
         return LoginAttempt(tokens=tokens)
 
@@ -235,7 +237,7 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return LoginAttempt(error="cannot_connect")
         except MyQError:
             _LOGGER.exception("Unexpected MyQ error while submitting MFA")
-            await self._async_close_login()
+            self._close_login()
             return LoginAttempt(error="unknown")
         return LoginAttempt(tokens=tokens)
 
@@ -246,13 +248,13 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             doors = await client.async_get_garage_doors()
         except ClientError:
-            await self._async_close_login()
+            self._close_login()
             return self.async_abort(reason="cannot_connect")
         except MyQError:
             _LOGGER.exception("Unexpected MyQ API error during account validation")
-            await self._async_close_login()
+            self._close_login()
             return self.async_abort(reason="unknown")
-        await self._async_close_login()
+        self._close_login()
         if not doors:
             return self.async_abort(reason="no_devices")
 
@@ -273,10 +275,10 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
         return self.async_create_entry(title=email_address, data=data)
 
-    async def _async_close_login(self) -> None:
-        if self._login is None:
-            return
-        await self._login.async_close()
+    def _close_login(self) -> None:
+        if self._login_session is not None:
+            self._login_session.detach()
+        self._login_session = None
         self._login = None
 
     def _required_email(self) -> str:
