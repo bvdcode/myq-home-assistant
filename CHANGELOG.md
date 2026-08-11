@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.1.5 (2026-08-11)
+
+### Bug Fixes
+
+- Add high-resolution MyQ icon
+  ([`f37f18a`](https://github.com/bvdcode/myq-home-assistant/commit/f37f18a18be1ab832399f464be677d9c7b7e9c44))
+
+### Documentation
+
+- Add Home Assistant quick links
+  ([`2af18f5`](https://github.com/bvdcode/myq-home-assistant/commit/2af18f59c8e9fa84bc265f39771f011fe0f15786))
+
+
 ## v0.1.4 (2026-08-06)
 
 ### Bug Fixes
