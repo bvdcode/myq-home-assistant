@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.6 (2026-09-09)
+
+### Bug Fixes
+
+- Refresh browser authentication headers
+  ([`cce100b`](https://github.com/bvdcode/myq-home-assistant/commit/cce100b1058c670edaa6196ed61f49189a68b370))
+
+
 ## v0.1.5 (2026-08-11)
 
 ### Bug Fixes
