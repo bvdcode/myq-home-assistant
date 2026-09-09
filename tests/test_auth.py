@@ -9,7 +9,7 @@ import pytest
 from aiohttp import ClientSession
 
 from custom_components.myq.auth import MyQAuth, MyQLoginSession
-from custom_components.myq.const import MFA_METHOD_EMAIL
+from custom_components.myq.const import BROWSER_USER_AGENT, MFA_METHOD_EMAIL
 from custom_components.myq.exceptions import MyQApiError, MyQInvalidMfaError
 from custom_components.myq.models import OAuthTokens
 
@@ -120,7 +120,17 @@ async def test_login_selects_email_and_exchanges_code() -> None:
 
     assert await login.async_start("driver@example.com", "secret", MFA_METHOD_EMAIL) is None
     authorize_call = session.calls[0]
-    assert authorize_call.kwargs["headers"]["User-Agent"].startswith("Mozilla/5.0")
+    assert authorize_call.kwargs["headers"] == {
+        "Accept": (
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+        ),
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-CH-UA": '"Chromium";v="153", "Google Chrome";v="153", "Not_A Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?1",
+        "Sec-CH-UA-Platform": '"Android"',
+        "User-Agent": BROWSER_USER_AGENT,
+        "Upgrade-Insecure-Requests": "1",
+    }
     switch_call = session.calls[4]
     assert switch_call.method == "GET"
     assert "selectedMfaMethod=Email" in switch_call.url

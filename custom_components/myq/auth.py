@@ -21,6 +21,7 @@ from .const import (
     ANDROID_PACKAGE,
     APP_VERSION,
     BRAND_ID,
+    BROWSER_USER_AGENT,
     FIREBASE_API_KEY,
     FIREBASE_APP_ID,
     FIREBASE_DEBUG_TOKEN,
@@ -476,11 +477,10 @@ def _login_headers(
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
         ),
         "Accept-Language": "en-US,en;q=0.9",
-        "User-Agent": (
-            "Mozilla/5.0 (Linux; Android 11; sdk_gphone_x86) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/83.0.4103.106 Mobile Safari/537.36"
-        ),
+        "Sec-CH-UA": '"Chromium";v="153", "Google Chrome";v="153", "Not_A Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?1",
+        "Sec-CH-UA-Platform": '"Android"',
+        "User-Agent": BROWSER_USER_AGENT,
         "Upgrade-Insecure-Requests": "1",
     }
     if referer is not None:

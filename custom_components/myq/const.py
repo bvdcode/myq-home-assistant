@@ -25,6 +25,11 @@ OAUTH_REDIRECT_URI: Final = "com.myqops://android"
 OAUTH_SCOPE: Final = "MyQ_Residential offline_access"
 APP_VERSION: Final = "5.243.1.73243"
 USER_AGENT: Final = "sdk_gphone_x86/Android 11"
+BROWSER_USER_AGENT: Final = (
+    "Mozilla/5.0 (Linux; Android 10; K) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/153.0.0.0 Mobile Safari/537.36"
+)
 BRAND_ID: Final = "1"
 
 FIREBASE_PROJECT_ID: Final = "myq-transition-test"
