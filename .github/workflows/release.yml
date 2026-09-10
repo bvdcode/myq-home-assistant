@@ -72,6 +72,13 @@ jobs:
           RELEASE_NOTES: ${{ steps.release.outputs.release_notes }}
         run: printf '%s\n' "$RELEASE_NOTES" > release-notes.md
 
+      - name: Package integration
+        if: steps.release.outputs.released == 'true'
+        working-directory: custom_components/myq
+        run: >-
+          zip -r "$GITHUB_WORKSPACE/myq.zip" .
+          -x "*/__pycache__/*" "*.pyc" "*.pyo"
+
       - name: Publish GitHub release
         if: steps.release.outputs.released == 'true'
         env:
@@ -84,3 +91,4 @@ jobs:
           --verify-tag
           --title "MyQ $RELEASE_VERSION"
           --notes-file release-notes.md
+          myq.zip
