@@ -56,6 +56,12 @@ blocks the automatic flow. Enter the account email address, complete
 authentication on the MyQ website, and paste the resulting
 `com.myqops://android` callback address into Home Assistant.
 
+If the callback address does not appear, press **F12**, open the browser
+console, and find the message that starts with
+`Failed to launch 'com.myqops://android?` and says that the scheme does not
+have a registered handler. Copy the complete `com.myqops://android?...`
+address from that message and paste it into Home Assistant.
+
 The password is used only during sign-in and is not stored. Home Assistant
 stores the issued OAuth tokens in the config entry and refreshes them
 automatically. Reauthentication is requested only when MyQ invalidates the

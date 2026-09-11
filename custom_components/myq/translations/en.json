@@ -57,7 +57,7 @@
       },
       "browser": {
         "title": "Sign in with a browser",
-        "description": "[Open MyQ sign-in]({authorization_url}) in a browser and sign in with {email}. When the browser tries to open `com.myqops://android`, copy the complete callback address and paste it below. The link expires in 10 minutes.",
+        "description": "[Open MyQ sign-in]({authorization_url}) in a browser and sign in with {email}. When the browser tries to open `com.myqops://android`, copy the complete callback address and paste it below. If no address appears, press F12, open the browser console, find the `Failed to launch 'com.myqops://android?...'` message, and copy the complete address from it. The link expires in 10 minutes.",
         "data": {
           "callback_url": "Callback address"
         }
