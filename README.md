@@ -46,12 +46,15 @@ The integration can be installed through HACS as a custom repository.
 1. Open **Settings → Devices & services**.
 2. Select **Add integration**.
 3. Search for **MyQ**.
-4. Enter the email address and password used by the MyQ app.
-5. Select email or SMS delivery and enter the six-digit verification code.
+4. Choose automatic or browser sign-in.
+5. For automatic sign-in, enter the email address and password used by the
+   MyQ app, then select email or SMS delivery and enter the six-digit
+   verification code.
 
-If MyQ blocks automated sign-in with a browser challenge, the integration
-provides a browser sign-in link. Complete authentication in the browser and
-paste the resulting `com.myqops://android` callback address into Home Assistant.
+Browser sign-in is always available and is also offered automatically if MyQ
+blocks the automatic flow. Enter the account email address, complete
+authentication on the MyQ website, and paste the resulting
+`com.myqops://android` callback address into Home Assistant.
 
 The password is used only during sign-in and is not stored. Home Assistant
 stores the issued OAuth tokens in the config entry and refreshes them

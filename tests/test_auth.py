@@ -11,7 +11,11 @@ from aiohttp import ClientSession
 
 from custom_components.myq.auth import MyQAuth, MyQLoginSession
 from custom_components.myq.const import BROWSER_USER_AGENT, MFA_METHOD_EMAIL
-from custom_components.myq.exceptions import MyQApiError, MyQInvalidMfaError
+from custom_components.myq.exceptions import (
+    MyQApiError,
+    MyQCloudflareChallengeError,
+    MyQInvalidMfaError,
+)
 from custom_components.myq.models import OAuthTokens
 
 
@@ -236,6 +240,22 @@ async def test_missing_login_form_reports_safe_page_summary() -> None:
             r"content='Access denied Request blocked\.'"
         ),
     ):
+        await login.async_start("driver@example.com", "secret", MFA_METHOD_EMAIL)
+
+
+async def test_authorize_forbidden_starts_browser_fallback() -> None:
+    session = FakeSession(
+        request_responses=[
+            FakeResponse(
+                "",
+                403,
+                '{ "isOk": false, "reason": "Resource not authorized", "id": 20 }',
+            ),
+        ]
+    )
+    login = MyQLoginSession(cast(ClientSession, session))
+
+    with pytest.raises(MyQCloudflareChallengeError):
         await login.async_start("driver@example.com", "secret", MFA_METHOD_EMAIL)
 
 

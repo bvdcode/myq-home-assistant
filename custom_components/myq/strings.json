@@ -2,12 +2,27 @@
   "config": {
     "step": {
       "user": {
+        "title": "Choose a sign-in method",
+        "description": "Automatic sign-in is recommended. Browser sign-in is also available if MyQ blocks the automatic flow.",
+        "menu_options": {
+          "credentials": "Sign in automatically",
+          "browser_start": "Sign in with a browser"
+        }
+      },
+      "credentials": {
         "title": "Connect MyQ",
         "description": "Enter the credentials for your MyQ account.",
         "data": {
           "email": "Email",
           "password": "Password",
           "mfa_method": "Send verification codes by"
+        }
+      },
+      "browser_start": {
+        "title": "Sign in with a browser",
+        "description": "Enter the email address for your MyQ account. Your password and verification code will be entered only on the MyQ website.",
+        "data": {
+          "email": "Email"
         }
       },
       "mfa": {
@@ -18,6 +33,14 @@
         }
       },
       "reauth_confirm": {
+        "title": "Reconnect MyQ",
+        "description": "Choose how to reconnect {email}.",
+        "menu_options": {
+          "reauth_credentials": "Sign in automatically",
+          "browser_start": "Sign in with a browser"
+        }
+      },
+      "reauth_credentials": {
         "title": "Reconnect MyQ",
         "description": "Enter the current password for {email}.",
         "data": {
@@ -34,7 +57,7 @@
       },
       "browser": {
         "title": "Sign in with a browser",
-        "description": "MyQ blocked automated sign-in. [Open MyQ sign-in]({authorization_url}) in a browser and sign in with {email}. When the browser tries to open `com.myqops://android`, copy the complete callback address and paste it below. The link expires in 10 minutes.",
+        "description": "[Open MyQ sign-in]({authorization_url}) in a browser and sign in with {email}. When the browser tries to open `com.myqops://android`, copy the complete callback address and paste it below. The link expires in 10 minutes.",
         "data": {
           "callback_url": "Callback address"
         }

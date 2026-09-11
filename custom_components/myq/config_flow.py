@@ -4,7 +4,7 @@ import logging
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import TypedDict, cast
+from typing import Final, TypedDict, cast
 
 import voluptuous as vol
 from aiohttp import ClientError, ClientSession, CookieJar
@@ -51,6 +51,10 @@ class PasswordInput(TypedDict):
     password: str
 
 
+class BrowserStartInput(TypedDict):
+    email: str
+
+
 class MfaInput(TypedDict):
     code: str
 
@@ -86,19 +90,22 @@ MFA_METHOD_SELECTOR = selector.SelectSelector(
     )
 )
 
-USER_SCHEMA = vol.Schema(
+CREDENTIALS_SCHEMA = vol.Schema(
     {
         vol.Required("email"): EMAIL_SELECTOR,
         vol.Required("password"): PASSWORD_SELECTOR,
         vol.Required(CONF_MFA_METHOD, default=DEFAULT_MFA_METHOD): MFA_METHOD_SELECTOR,
     }
 )
+BROWSER_START_SCHEMA = vol.Schema({vol.Required("email"): EMAIL_SELECTOR})
 REAUTH_SCHEMA = vol.Schema(
     {
         vol.Required("password"): PASSWORD_SELECTOR,
         vol.Required(CONF_MFA_METHOD, default=DEFAULT_MFA_METHOD): MFA_METHOD_SELECTOR,
     }
 )
+USER_MENU_OPTIONS: Final = ("credentials", "browser_start")
+REAUTH_MENU_OPTIONS: Final = ("reauth_credentials", "browser_start")
 MFA_SCHEMA = vol.Schema({vol.Required("code"): MFA_SELECTOR})
 BROWSER_CALLBACK_SCHEMA = vol.Schema(
     {
@@ -124,6 +131,16 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, object] | None = None,
     ) -> ConfigFlowResult:
+        del user_input
+        return self.async_show_menu(
+            step_id="user",
+            menu_options=USER_MENU_OPTIONS,
+        )
+
+    async def async_step_credentials(
+        self,
+        user_input: dict[str, object] | None = None,
+    ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
             credentials = cast(CredentialsInput, user_input)
@@ -140,9 +157,30 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = attempt.error
 
         return self.async_show_form(
-            step_id="user",
-            data_schema=USER_SCHEMA,
+            step_id="credentials",
+            data_schema=CREDENTIALS_SCHEMA,
             errors=errors,
+        )
+
+    async def async_step_browser_start(
+        self,
+        user_input: dict[str, object] | None = None,
+    ) -> ConfigFlowResult:
+        if self._reauth_entry is not None:
+            self._begin_browser_login()
+            return await self.async_step_browser()
+
+        if user_input is not None:
+            browser_input = cast(BrowserStartInput, user_input)
+            self._email = browser_input[CONF_EMAIL].strip().casefold()
+            self._mfa_method = DEFAULT_MFA_METHOD
+            self._async_abort_entries_match({CONF_EMAIL: self._email})
+            self._begin_browser_login()
+            return await self.async_step_browser()
+
+        return self.async_show_form(
+            step_id="browser_start",
+            data_schema=BROWSER_START_SCHEMA,
         )
 
     async def async_step_mfa(
@@ -166,6 +204,17 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, object] | None = None,
     ) -> ConfigFlowResult:
+        del user_input
+        return self.async_show_menu(
+            step_id="reauth_confirm",
+            menu_options=REAUTH_MENU_OPTIONS,
+            description_placeholders={"email": self._required_email()},
+        )
+
+    async def async_step_reauth_credentials(
+        self,
+        user_input: dict[str, object] | None = None,
+    ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
             password_input = cast(PasswordInput, user_input)
@@ -180,7 +229,7 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = attempt.error
 
         return self.async_show_form(
-            step_id="reauth_confirm",
+            step_id="reauth_credentials",
             data_schema=REAUTH_SCHEMA,
             errors=errors,
             description_placeholders={"email": self._required_email()},
@@ -238,16 +287,9 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def _async_start_login(self, password: str) -> LoginAttempt:
-        self._close_login()
-        session = async_create_clientsession(
-            self.hass,
-            auto_cleanup=False,
-            cookie_jar=CookieJar(),
-        )
-        self._login_session = session
-        self._login = MyQLoginSession(session)
+        self._create_login_session()
         try:
-            tokens = await self._login.async_start(
+            tokens = await self._required_login().async_start(
                 self._required_email(),
                 password,
                 self._required_mfa_method(),
@@ -270,7 +312,7 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self._login is None:
             return LoginAttempt(error="authentication_expired")
         try:
-            tokens = await self._login.async_complete_browser(callback_url)
+            tokens = await self._required_login().async_complete_browser(callback_url)
         except MyQInvalidCallbackError:
             return LoginAttempt(error="invalid_callback")
         except MyQBrowserSessionExpiredError:
@@ -288,7 +330,7 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self._login is None:
             return LoginAttempt(error="authentication_expired")
         try:
-            tokens = await self._login.async_submit_mfa(code)
+            tokens = await self._required_login().async_submit_mfa(code)
         except MyQInvalidMfaError:
             return LoginAttempt(error="invalid_mfa")
         except ClientError:
@@ -340,10 +382,22 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._login = None
         self._browser_url = None
 
+    def _create_login_session(self) -> None:
+        self._close_login()
+        session = async_create_clientsession(
+            self.hass,
+            auto_cleanup=False,
+            cookie_jar=CookieJar(),
+        )
+        self._login_session = session
+        self._login = MyQLoginSession(session)
+
+    def _begin_browser_login(self) -> None:
+        self._create_login_session()
+        self._start_browser()
+
     def _start_browser(self) -> str:
-        if self._login is None:
-            raise RuntimeError("The MyQ config flow has no login session")
-        self._browser_url = self._login.start_browser()
+        self._browser_url = self._required_login().start_browser()
         return self._browser_url
 
     def _restart_browser(self, error: str) -> LoginAttempt:
@@ -364,3 +418,8 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self._mfa_method is None:
             raise RuntimeError("The MyQ config flow has no MFA method")
         return self._mfa_method
+
+    def _required_login(self) -> MyQLoginSession:
+        if self._login is None:
+            raise RuntimeError("The MyQ config flow has no login session")
+        return self._login

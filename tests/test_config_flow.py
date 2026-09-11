@@ -66,6 +66,17 @@ async def test_user_flow_creates_token_backed_entry_after_email_mfa(
     mock_login_session.http_session.detach.assert_called_once_with()
 
 
+async def test_user_flow_offers_both_sign_in_methods(hass: HomeAssistant) -> None:
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": config_entries.SOURCE_USER},
+    )
+
+    assert result["type"] is data_entry_flow.FlowResultType.MENU
+    assert result["step_id"] == "user"
+    assert result["menu_options"] == ("credentials", "browser_start")
+
+
 async def test_user_flow_can_select_sms(
     hass: HomeAssistant,
     mock_login_session: MagicMock,
@@ -108,6 +119,37 @@ async def test_cloudflare_challenge_starts_browser_sign_in(
         "authorization_url": "https://partner-identity.myq-cloud.com/connect/authorize",
         "email": EMAIL,
     }
+
+
+async def test_browser_sign_in_can_be_selected_without_password(
+    hass: HomeAssistant,
+    mock_login_session: MagicMock,
+) -> None:
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": config_entries.SOURCE_USER},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"next_step_id": "browser_start"},
+    )
+
+    assert result["type"] is data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "browser_start"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {CONF_EMAIL: " Driver@Example.com "},
+    )
+
+    assert result["type"] is data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "browser"
+    assert result["description_placeholders"] == {
+        "authorization_url": "https://partner-identity.myq-cloud.com/connect/authorize",
+        "email": EMAIL,
+    }
+    mock_login_session.start_browser.assert_called_once_with()
+    mock_login_session.async_start.assert_not_awaited()
 
 
 async def test_browser_callback_creates_entry(
@@ -203,6 +245,10 @@ async def test_reauthentication_updates_tokens_and_mfa_method(
     result = await entry.start_reauth_flow(hass)
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
+        {"next_step_id": "reauth_credentials"},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
         {"password": PASSWORD, CONF_MFA_METHOD: MFA_METHOD_SMS},
     )
 
@@ -213,6 +259,39 @@ async def test_reauthentication_updates_tokens_and_mfa_method(
     assert "password" not in entry.data
 
 
+async def test_reauthentication_offers_browser_sign_in(
+    hass: HomeAssistant,
+    mock_login_session: MagicMock,
+) -> None:
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=EMAIL,
+        data=_entry_data(),
+    )
+    entry.add_to_hass(hass)
+
+    result = await entry.start_reauth_flow(hass)
+
+    assert result["type"] is data_entry_flow.FlowResultType.MENU
+    assert result["step_id"] == "reauth_confirm"
+    assert result["menu_options"] == ("reauth_credentials", "browser_start")
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"next_step_id": "browser_start"},
+    )
+
+    assert result["type"] is data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "browser"
+    assert result["description_placeholders"] == {
+        "authorization_url": "https://partner-identity.myq-cloud.com/connect/authorize",
+        "email": EMAIL,
+        "name": "Mock Title",
+    }
+    mock_login_session.start_browser.assert_called_once_with()
+    mock_login_session.async_start.assert_not_awaited()
+
+
 async def _submit_credentials(
     hass: HomeAssistant,
     *,
@@ -221,6 +300,10 @@ async def _submit_credentials(
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": config_entries.SOURCE_USER},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"next_step_id": "credentials"},
     )
     return await hass.config_entries.flow.async_configure(
         result["flow_id"],

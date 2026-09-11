@@ -155,7 +155,7 @@ class MyQLoginSession:
         authorization_code, page = await self._follow_redirects(page)
         if authorization_code is not None:
             return await self._async_exchange_code(authorization_code)
-        _raise_for_challenge(page.body)
+        _raise_for_challenge(page)
 
         form = _login_form(page)
         fields = dict(form.fields)
@@ -170,7 +170,7 @@ class MyQLoginSession:
         authorization_code, result = await self._follow_redirects(submitted)
         if authorization_code is not None:
             return await self._async_exchange_code(authorization_code)
-        _raise_for_challenge(result.body)
+        _raise_for_challenge(result)
 
         message = _validation_error(result.body)
         if message is not None:
@@ -178,7 +178,7 @@ class MyQLoginSession:
         authorization_code, result = await self._select_mfa_method(result, mfa_method)
         if authorization_code is not None:
             return await self._async_exchange_code(authorization_code)
-        _raise_for_challenge(result.body)
+        _raise_for_challenge(result)
         self._set_mfa_form(result)
         return None
 
@@ -647,8 +647,15 @@ def _validation_error(page_html: str) -> str | None:
     return re.sub(r"\s+", " ", message) or None
 
 
-def _raise_for_challenge(page_html: str) -> None:
-    if any(marker in page_html for marker in ("Just a moment", "Verify you are human")):
+def _raise_for_challenge(page: HttpPage) -> None:
+    authorize_forbidden = (
+        page.status == 403
+        and urllib.parse.urlsplit(page.url).path.lower() == "/connect/authorize"
+        and "Resource not authorized" in page.body
+    )
+    if authorize_forbidden or any(
+        marker in page.body for marker in ("Just a moment", "Verify you are human")
+    ):
         raise MyQCloudflareChallengeError
 
 
