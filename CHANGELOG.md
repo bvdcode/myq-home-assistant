@@ -2,6 +2,27 @@
 
 <!-- version list -->
 
+## v0.2.0 (2026-09-11)
+
+### Bug Fixes
+
+- Publish HACS release archive
+  ([`a9b1d31`](https://github.com/bvdcode/myq-home-assistant/commit/a9b1d311eb52935fb347ea04853c013594903051))
+
+### Chores
+
+- Add Ko-fi funding
+  ([`cc128d8`](https://github.com/bvdcode/myq-home-assistant/commit/cc128d8002db999f64e9194583d7658aeec356b3))
+
+### Features
+
+- Add browser authentication fallback
+  ([`704717e`](https://github.com/bvdcode/myq-home-assistant/commit/704717ed8844d06584cbc7c24c923930dff2a01b))
+
+- Expose browser sign-in option
+  ([`c658c71`](https://github.com/bvdcode/myq-home-assistant/commit/c658c71cc04e5f22178ab8020a5e54f99d8be9bc))
+
+
 ## v0.1.6 (2026-09-09)
 
 ### Bug Fixes
