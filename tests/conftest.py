@@ -21,6 +21,10 @@ def mock_login_session() -> Generator[MagicMock]:
         login = login_class.return_value
         login.async_start = AsyncMock()
         login.async_submit_mfa = AsyncMock()
+        login.async_complete_browser = AsyncMock()
+        login.start_browser.return_value = (
+            "https://partner-identity.myq-cloud.com/connect/authorize"
+        )
         login.http_session = session
         yield login
 

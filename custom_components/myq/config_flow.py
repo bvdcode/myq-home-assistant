@@ -27,8 +27,11 @@ from .const import (
     MFA_METHOD_SMS,
 )
 from .exceptions import (
+    MyQAuthenticationError,
+    MyQBrowserSessionExpiredError,
     MyQCloudflareChallengeError,
     MyQError,
+    MyQInvalidCallbackError,
     MyQInvalidCredentialsError,
     MyQInvalidMfaError,
 )
@@ -52,10 +55,15 @@ class MfaInput(TypedDict):
     code: str
 
 
+class BrowserCallbackInput(TypedDict):
+    callback_url: str
+
+
 @dataclass(frozen=True, slots=True)
 class LoginAttempt:
     tokens: OAuthTokens | None = None
     error: str | None = None
+    browser_url: str | None = None
 
 
 EMAIL_SELECTOR = selector.TextSelector(
@@ -92,6 +100,13 @@ REAUTH_SCHEMA = vol.Schema(
     }
 )
 MFA_SCHEMA = vol.Schema({vol.Required("code"): MFA_SELECTOR})
+BROWSER_CALLBACK_SCHEMA = vol.Schema(
+    {
+        vol.Required("callback_url"): selector.TextSelector(
+            selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+        )
+    }
+)
 
 
 class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -100,6 +115,7 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         self._email: str | None = None
         self._mfa_method: str | None = None
+        self._browser_url: str | None = None
         self._login: MyQLoginSession | None = None
         self._login_session: ClientSession | None = None
         self._reauth_entry: MyQConfigEntry | None = None
@@ -117,6 +133,8 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             attempt = await self._async_start_login(credentials["password"])
             if attempt.tokens is not None:
                 return await self._async_finish(attempt.tokens)
+            if attempt.browser_url is not None:
+                return await self.async_step_browser()
             if attempt.error is None:
                 return await self.async_step_mfa()
             errors["base"] = attempt.error
@@ -155,6 +173,8 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             attempt = await self._async_start_login(password_input["password"])
             if attempt.tokens is not None:
                 return await self._async_finish(attempt.tokens)
+            if attempt.browser_url is not None:
+                return await self.async_step_browser()
             if attempt.error is None:
                 return await self.async_step_reauth_mfa()
             errors["base"] = attempt.error
@@ -171,6 +191,28 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         user_input: dict[str, object] | None = None,
     ) -> ConfigFlowResult:
         return await self._async_mfa_step("reauth_mfa", user_input)
+
+    async def async_step_browser(
+        self,
+        user_input: dict[str, object] | None = None,
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            callback_input = cast(BrowserCallbackInput, user_input)
+            attempt = await self._async_complete_browser(callback_input["callback_url"].strip())
+            if attempt.tokens is not None:
+                return await self._async_finish(attempt.tokens)
+            errors["base"] = attempt.error or "unknown"
+
+        return self.async_show_form(
+            step_id="browser",
+            data_schema=BROWSER_CALLBACK_SCHEMA,
+            errors=errors,
+            description_placeholders={
+                "authorization_url": self._required_browser_url(),
+                "email": self._required_email(),
+            },
+        )
 
     async def _async_mfa_step(
         self,
@@ -214,8 +256,7 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._close_login()
             return LoginAttempt(error="invalid_auth")
         except MyQCloudflareChallengeError:
-            self._close_login()
-            return LoginAttempt(error="cloudflare_challenge")
+            return LoginAttempt(browser_url=self._start_browser())
         except ClientError:
             self._close_login()
             return LoginAttempt(error="cannot_connect")
@@ -223,6 +264,24 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("Unexpected MyQ error while starting authentication")
             self._close_login()
             return LoginAttempt(error="unknown")
+        return LoginAttempt(tokens=tokens)
+
+    async def _async_complete_browser(self, callback_url: str) -> LoginAttempt:
+        if self._login is None:
+            return LoginAttempt(error="authentication_expired")
+        try:
+            tokens = await self._login.async_complete_browser(callback_url)
+        except MyQInvalidCallbackError:
+            return LoginAttempt(error="invalid_callback")
+        except MyQBrowserSessionExpiredError:
+            return self._restart_browser("browser_session_expired")
+        except MyQAuthenticationError:
+            return self._restart_browser("browser_auth_failed")
+        except ClientError:
+            return self._restart_browser("cannot_connect")
+        except MyQError:
+            _LOGGER.exception("Unexpected MyQ error while completing browser authentication")
+            return self._restart_browser("unknown")
         return LoginAttempt(tokens=tokens)
 
     async def _async_submit_mfa(self, code: str) -> LoginAttempt:
@@ -279,6 +338,22 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._login_session.detach()
         self._login_session = None
         self._login = None
+        self._browser_url = None
+
+    def _start_browser(self) -> str:
+        if self._login is None:
+            raise RuntimeError("The MyQ config flow has no login session")
+        self._browser_url = self._login.start_browser()
+        return self._browser_url
+
+    def _restart_browser(self, error: str) -> LoginAttempt:
+        self._start_browser()
+        return LoginAttempt(error=error)
+
+    def _required_browser_url(self) -> str:
+        if self._browser_url is None:
+            raise RuntimeError("The MyQ config flow has no browser authorization URL")
+        return self._browser_url
 
     def _required_email(self) -> str:
         if self._email is None:

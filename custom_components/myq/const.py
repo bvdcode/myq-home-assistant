@@ -32,6 +32,7 @@ BROWSER_USER_AGENT: Final = (
 )
 BRAND_ID: Final = "1"
 
+BROWSER_AUTH_TIMEOUT: Final = timedelta(minutes=10)
 FIREBASE_PROJECT_ID: Final = "myq-transition-test"
 FIREBASE_APP_ID: Final = "1:169499880894:android:120796f2b5e44ca7"
 FIREBASE_API_KEY: Final = "AIzaSyDYwdJBRp6H3UhrCp5LGY8XTPJG7hTeCgw"

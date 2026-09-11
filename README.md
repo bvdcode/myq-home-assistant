@@ -49,6 +49,10 @@ The integration can be installed through HACS as a custom repository.
 4. Enter the email address and password used by the MyQ app.
 5. Select email or SMS delivery and enter the six-digit verification code.
 
+If MyQ blocks automated sign-in with a browser challenge, the integration
+provides a browser sign-in link. Complete authentication in the browser and
+paste the resulting `com.myqops://android` callback address into Home Assistant.
+
 The password is used only during sign-in and is not stored. Home Assistant
 stores the issued OAuth tokens in the config entry and refreshes them
 automatically. Reauthentication is requested only when MyQ invalidates the

@@ -31,13 +31,22 @@
         "data": {
           "code": "Verification code"
         }
+      },
+      "browser": {
+        "title": "Sign in with a browser",
+        "description": "MyQ blocked automated sign-in. [Open MyQ sign-in]({authorization_url}) in a browser and sign in with {email}. When the browser tries to open `com.myqops://android`, copy the complete callback address and paste it below. The link expires in 10 minutes.",
+        "data": {
+          "callback_url": "Callback address"
+        }
       }
     },
     "error": {
       "authentication_expired": "The sign-in session expired. Start again.",
       "cannot_connect": "Unable to connect to MyQ.",
-      "cloudflare_challenge": "MyQ blocked the sign-in request with a browser challenge. Try again later.",
+      "browser_auth_failed": "MyQ rejected the browser authorization. Open the new sign-in link and try again.",
+      "browser_session_expired": "The browser sign-in session expired. Open the new sign-in link and try again.",
       "invalid_auth": "The email address or password is incorrect.",
+      "invalid_callback": "The callback address is invalid or belongs to a different sign-in attempt.",
       "invalid_mfa": "The verification code is invalid or expired.",
       "unknown": "Unexpected MyQ error. Check the logs for details."
     },

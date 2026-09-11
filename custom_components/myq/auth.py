@@ -16,6 +16,7 @@ from typing import cast
 
 from aiohttp import ClientSession
 
+from .browser_auth import _BrowserAuthorization
 from .const import (
     ANDROID_CERT_SHA1,
     ANDROID_PACKAGE,
@@ -38,6 +39,7 @@ from .const import (
 from .exceptions import (
     MyQApiError,
     MyQAuthenticationError,
+    MyQBrowserSessionExpiredError,
     MyQCloudflareChallengeError,
     MyQInvalidCredentialsError,
     MyQInvalidMfaError,
@@ -135,6 +137,7 @@ class MyQLoginSession:
         self._session = session
         self._verifier: str | None = None
         self._mfa_form: MfaForm | None = None
+        self._browser_authorization: _BrowserAuthorization | None = None
 
     async def async_start(
         self,
@@ -203,6 +206,19 @@ class MyQLoginSession:
             with suppress(MyQApiError):
                 self._set_mfa_form(result)
             raise MyQInvalidMfaError(message or "MyQ rejected the MFA code")
+        return await self._async_exchange_code(authorization_code)
+
+    def start_browser(self) -> str:
+        authorization_url, verifier = _authorization_url()
+        self._verifier = verifier
+        self._mfa_form = None
+        self._browser_authorization = _BrowserAuthorization.create(authorization_url)
+        return self._browser_authorization.url
+
+    async def async_complete_browser(self, callback_url: str) -> OAuthTokens:
+        if self._browser_authorization is None:
+            raise MyQBrowserSessionExpiredError
+        authorization_code = self._browser_authorization.consume(callback_url)
         return await self._async_exchange_code(authorization_code)
 
     async def _async_exchange_code(self, code: str) -> OAuthTokens:

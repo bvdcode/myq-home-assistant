@@ -14,6 +14,7 @@ from custom_components.myq.const import (
 )
 from custom_components.myq.exceptions import (
     MyQCloudflareChallengeError,
+    MyQInvalidCallbackError,
     MyQInvalidCredentialsError,
     MyQInvalidMfaError,
 )
@@ -93,7 +94,7 @@ async def test_invalid_credentials_remain_on_user_form(
     mock_login_session.http_session.detach.assert_called_once_with()
 
 
-async def test_cloudflare_challenge_has_specific_error(
+async def test_cloudflare_challenge_starts_browser_sign_in(
     hass: HomeAssistant,
     mock_login_session: MagicMock,
 ) -> None:
@@ -101,7 +102,57 @@ async def test_cloudflare_challenge_has_specific_error(
 
     result = await _submit_credentials(hass)
 
-    assert result["errors"] == {"base": "cloudflare_challenge"}
+    assert result["type"] is data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "browser"
+    assert result["description_placeholders"] == {
+        "authorization_url": "https://partner-identity.myq-cloud.com/connect/authorize",
+        "email": EMAIL,
+    }
+
+
+async def test_browser_callback_creates_entry(
+    hass: HomeAssistant,
+    mock_login_session: MagicMock,
+    mock_myq_client: MagicMock,
+) -> None:
+    mock_login_session.async_start.side_effect = MyQCloudflareChallengeError
+    mock_login_session.async_complete_browser.return_value = TOKENS
+    mock_myq_client.async_get_garage_doors.return_value = (DOOR,)
+    result = await _submit_credentials(hass)
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            "callback_url": (
+                " com.myqops://android?code=browser-code&state=state"
+                "&iss=https%3A%2F%2Fpartner-identity.myq-cloud.com "
+            )
+        },
+    )
+
+    assert result["type"] is data_entry_flow.FlowResultType.CREATE_ENTRY
+    mock_login_session.async_complete_browser.assert_awaited_once_with(
+        "com.myqops://android?code=browser-code&state=state"
+        "&iss=https%3A%2F%2Fpartner-identity.myq-cloud.com"
+    )
+
+
+async def test_browser_callback_can_be_retried(
+    hass: HomeAssistant,
+    mock_login_session: MagicMock,
+) -> None:
+    mock_login_session.async_start.side_effect = MyQCloudflareChallengeError
+    mock_login_session.async_complete_browser.side_effect = MyQInvalidCallbackError
+    result = await _submit_credentials(hass)
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"callback_url": "https://example.com/callback"},
+    )
+
+    assert result["type"] is data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "browser"
+    assert result["errors"] == {"base": "invalid_callback"}
 
 
 async def test_invalid_mfa_can_be_retried(

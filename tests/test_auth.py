@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import urllib.parse
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, cast
@@ -184,6 +185,31 @@ async def test_invalid_mfa_can_be_retried() -> None:
 
     tokens = await login.async_submit_mfa("123456")
     assert tokens.refresh_token == "refresh"
+
+
+async def test_browser_login_preserves_pkce_for_code_exchange() -> None:
+    session = FakeSession(
+        post_responses=[
+            FakeResponse("", body='{"token":"app-check"}'),
+            FakeResponse(
+                "",
+                body=('{"access_token":"access","refresh_token":"refresh","expires_in":3600}'),
+            ),
+        ]
+    )
+    login = MyQLoginSession(cast(ClientSession, session))
+
+    authorization_url = login.start_browser()
+    state = urllib.parse.parse_qs(urllib.parse.urlsplit(authorization_url).query)["state"][0]
+    tokens = await login.async_complete_browser(
+        "com.myqops://android?code=browser-code"
+        f"&state={state}&iss=https%3A%2F%2Fpartner-identity.myq-cloud.com"
+    )
+
+    assert tokens.refresh_token == "refresh"
+    token_call = session.calls[-1]
+    assert token_call.kwargs["data"]["code"] == "browser-code"
+    assert token_call.kwargs["data"]["code_verifier"]
 
 
 async def test_missing_login_form_reports_safe_page_summary() -> None:

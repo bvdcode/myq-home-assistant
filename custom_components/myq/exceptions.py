@@ -18,5 +18,13 @@ class MyQCloudflareChallengeError(MyQError):
     pass
 
 
+class MyQBrowserSessionExpiredError(MyQError):
+    pass
+
+
+class MyQInvalidCallbackError(MyQError):
+    pass
+
+
 class MyQApiError(MyQError):
     pass
