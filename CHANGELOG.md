@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.1 (2026-09-11)
+
+### Bug Fixes
+
+- Explain how to recover browser callback
+  ([`388672d`](https://github.com/bvdcode/myq-home-assistant/commit/388672d49be79f50bea47acf93a98747ed1d1409))
+
+
 ## v0.2.0 (2026-09-11)
 
 ### Bug Fixes
