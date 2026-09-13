@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.2.2 (2026-09-13)
+
+### Bug Fixes
+
+- Tolerate MyQ authentication form variations
+  ([`1f0f453`](https://github.com/bvdcode/myq-home-assistant/commit/1f0f45373bdc323ca0571a5055ec024e6d67ae99))
+
+### Documentation
+
+- Add Ko-fi support button
+  ([`c285715`](https://github.com/bvdcode/myq-home-assistant/commit/c28571514d4e26b9e327b592b423ffc30c0d2ff9))
+
+
 ## v0.2.1 (2026-09-11)
 
 ### Bug Fixes
