@@ -16,6 +16,8 @@ from typing import cast
 
 from aiohttp import ClientSession
 
+from .auth_forms import ParsedForm
+from .auth_forms import parse_forms as _parse_forms
 from .browser_auth import _BrowserAuthorization
 from .const import (
     ANDROID_CERT_SHA1,
@@ -43,19 +45,11 @@ from .exceptions import (
     MyQCloudflareChallengeError,
     MyQInvalidCredentialsError,
     MyQInvalidMfaError,
+    MyQUnsupportedAuthPageError,
 )
 from .models import OAuthTokens, StoredTokens
 
 TokenListener = Callable[[OAuthTokens], None]
-
-
-@dataclass(frozen=True, slots=True)
-class ParsedForm:
-    action: str
-    fields: dict[str, str]
-    email_field: str | None
-    password_field: str | None
-    otp_field: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -197,14 +191,19 @@ class MyQLoginSession:
             ),
         )
         authorization_code, result = await self._follow_redirects(submitted)
+        _raise_for_challenge(result)
         authorization_code, result = await self._follow_consent(
             authorization_code,
             result,
         )
         if authorization_code is None:
+            _raise_for_challenge(result)
             message = _validation_error(result.body)
-            with suppress(MyQApiError):
+            if message is None:
                 self._set_mfa_form(result)
+            else:
+                with suppress(MyQApiError):
+                    self._set_mfa_form(result)
             raise MyQInvalidMfaError(message or "MyQ rejected the MFA code")
         return await self._async_exchange_code(authorization_code)
 
@@ -270,7 +269,7 @@ class MyQLoginSession:
         if server_method is None:
             raise MyQApiError("Unsupported MyQ MFA method")
 
-        form = _otp_form(page.body)
+        form = _otp_form(page)
         selected_method = next(
             (
                 value
@@ -368,7 +367,7 @@ class MyQLoginSession:
             )
 
     def _set_mfa_form(self, page: HttpPage) -> None:
-        form = _otp_form(page.body)
+        form = _otp_form(page)
         self._mfa_form = MfaForm(
             page_url=page.url,
             action=urllib.parse.urljoin(page.url, form.action),
@@ -507,81 +506,16 @@ def _login_headers(
     return headers
 
 
-def _attribute(tag: str, name: str) -> str | None:
-    pattern = re.compile(
-        rf"\b{re.escape(name)}\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))",
-        re.IGNORECASE,
-    )
-    match = pattern.search(tag)
-    if match is None:
-        return None
-    value = next(group for group in match.groups() if group is not None)
-    return html.unescape(value)
-
-
-def _parse_forms(page_html: str) -> list[ParsedForm]:
-    forms: list[ParsedForm] = []
-    for form_match in re.finditer(
-        r"(<form\b[^>]*>)(.*?)</form>",
-        page_html,
-        re.IGNORECASE | re.DOTALL,
-    ):
-        form_tag = form_match.group(1)
-        form_body = form_match.group(2)
-        action = _attribute(form_tag, "action") or ""
-        fields: dict[str, str] = {}
-        email_field: str | None = None
-        password_field: str | None = None
-        otp_field: str | None = None
-        visible_fields: list[str] = []
-
-        for input_match in re.finditer(r"<input\b[^>]*>", form_body, re.IGNORECASE):
-            input_tag = input_match.group(0)
-            name = _attribute(input_tag, "name")
-            if name is None or re.search(r"\bdisabled\b", input_tag, re.IGNORECASE):
-                continue
-            field_type = (_attribute(input_tag, "type") or "text").lower()
-            if field_type in {"button", "image", "reset", "submit"}:
-                continue
-            fields[name] = _attribute(input_tag, "value") or ""
-            identity = " ".join(
-                (
-                    name,
-                    _attribute(input_tag, "id") or "",
-                    _attribute(input_tag, "autocomplete") or "",
-                )
-            ).lower()
-            if field_type == "email" or "email" in identity:
-                email_field = name
-            if field_type == "password":
-                password_field = name
-            if (
-                "otp" in identity
-                or "one-time-code" in identity
-                or re.search(
-                    r"(^|\W)(verification|security)[_-]?code($|\W)",
-                    identity,
-                )
-            ):
-                otp_field = name
-            if field_type in {"number", "tel", "text"}:
-                visible_fields.append(name)
-
-        if otp_field is None and "verifyotp" in action.lower():
-            otp_field = next(
-                (name for name in fields if "otp" in name.lower() or name.lower().endswith("code")),
-                visible_fields[0] if len(visible_fields) == 1 else None,
-            )
-        forms.append(ParsedForm(action, fields, email_field, password_field, otp_field))
-    return forms
-
-
 def _login_form(page: HttpPage) -> ParsedForm:
     form = next(
-        (candidate for candidate in _parse_forms(page.body) if candidate.password_field),
+        (
+            candidate
+            for candidate in _parse_forms(page.body, page.url)
+            if candidate.password_field and candidate.email_field
+        ),
         None,
     )
-    if form is None or form.email_field is None or not form.action:
+    if form is None:
         raise MyQApiError(f"The MyQ sign-in form was not found ({_page_summary(page)})")
     return form
 
@@ -607,13 +541,21 @@ def _plain_text(value: str) -> str:
     return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", value))).strip()
 
 
-def _otp_form(page_html: str) -> ParsedForm:
+def _otp_form(page: HttpPage) -> ParsedForm:
+    forms = _parse_forms(page.body, page.url)
     form = next(
-        (candidate for candidate in _parse_forms(page_html) if candidate.otp_field),
+        (candidate for candidate in forms if candidate.otp_field),
         None,
     )
-    if form is None or form.otp_field is None or not form.action:
-        raise MyQApiError("The MyQ MFA form was not recognized")
+    if form is None or not 200 <= page.status < 300:
+        path = urllib.parse.urlsplit(page.url).path or "/"
+        message = (
+            "The MyQ MFA form was not recognized "
+            f"(HTTP {page.status} at {path}, forms={len(forms)})"
+        )
+        if 200 <= page.status < 300:
+            raise MyQUnsupportedAuthPageError(message)
+        raise MyQApiError(message)
     return form
 
 

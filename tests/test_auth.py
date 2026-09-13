@@ -10,11 +10,12 @@ import pytest
 from aiohttp import ClientSession
 
 from custom_components.myq.auth import MyQAuth, MyQLoginSession
-from custom_components.myq.const import BROWSER_USER_AGENT, MFA_METHOD_EMAIL
+from custom_components.myq.const import BROWSER_USER_AGENT, MFA_METHOD_EMAIL, MFA_METHOD_SMS
 from custom_components.myq.exceptions import (
     MyQApiError,
     MyQCloudflareChallengeError,
     MyQInvalidMfaError,
+    MyQUnsupportedAuthPageError,
 )
 from custom_components.myq.models import OAuthTokens
 
@@ -257,6 +258,121 @@ async def test_authorize_forbidden_starts_browser_fallback() -> None:
 
     with pytest.raises(MyQCloudflareChallengeError):
         await login.async_start("driver@example.com", "secret", MFA_METHOD_EMAIL)
+
+
+@pytest.mark.parametrize("method", [MFA_METHOD_EMAIL, MFA_METHOD_SMS])
+@pytest.mark.parametrize(
+    ("form_attributes", "control", "otp_name"),
+    [
+        ('action="/AccountMfa/VerifyOtp"', '<input name="Otp">', "Otp"),
+        ("", '<input name="Pin" type="tel">', "Pin"),
+        ('action=""', '<input name="Otp" data-disabled="false">', "Otp"),
+        ('action="/verify"', '<input name="Pin" autocomplete="one-time-code">', "Pin"),
+        ('action="/verify"', '<input title="Enter > 0" name="SecurityCode">', "SecurityCode"),
+    ],
+)
+async def test_mfa_form_variants_complete_login(
+    method: str, form_attributes: str, control: str, otp_name: str
+) -> None:
+    mfa_html = (
+        f'<form method="post" {form_attributes}>'
+        '<input name="csrf" type="hidden" value="csrf-value">'
+        f'<input name="SelectedMfaMethod" type="hidden" value="{method}">'
+        f'{control}<input name="OtpToken" type="hidden" value="otp-token"></form>'
+    )
+    session = FakeSession(
+        request_responses=[
+            FakeResponse("", body=LOGIN_HTML),
+            FakeResponse("", 302, headers={"Location": "/AccountMfa/VerifyOtp?flow=test"}),
+            FakeResponse("", body=mfa_html),
+            FakeResponse("", 302, headers={"Location": "com.myqops://android?code=auth-code"}),
+        ],
+        post_responses=[
+            FakeResponse("", body='{"token":"app-check"}'),
+            FakeResponse(
+                "", body='{"access_token":"access","refresh_token":"refresh","expires_in":3600}'
+            ),
+        ],
+    )
+    login = MyQLoginSession(cast(ClientSession, session))
+
+    assert await login.async_start("driver@example.com", "secret", method) is None
+    assert len(session.calls) == 3
+    assert (await login.async_submit_mfa("123456")).access_token == "access"
+    submission = session.calls[3]
+    assert submission.kwargs["data"] == {
+        "csrf": "csrf-value",
+        "SelectedMfaMethod": method,
+        otp_name: "123456",
+        "OtpToken": "otp-token",
+    }
+    if 'action="/' not in form_attributes:
+        assert submission.url.endswith("/AccountMfa/VerifyOtp?flow=test")
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        '<form action="/SelectMethod">'
+        '<input type="radio" name="SelectedMfaMethod" value="Sms"></form>',
+        '<form action="/Consent"><button>Continue</button></form>',
+        '<form action="/verify"><input name="Otp1"><input name="Otp2"></form>',
+        '<form action="/verify"><input type="hidden" name="OtpToken"></form>',
+        '<html><div id="app"></div></html>',
+    ],
+)
+async def test_unknown_mfa_screen_requires_browser_without_retrying(body: str) -> None:
+    session = FakeSession(
+        request_responses=[
+            FakeResponse("", body=LOGIN_HTML),
+            FakeResponse("", 302, headers={"Location": "/next?state=private-state"}),
+            FakeResponse("", body=body),
+        ]
+    )
+    login = MyQLoginSession(cast(ClientSession, session))
+
+    with pytest.raises(MyQUnsupportedAuthPageError, match=r"HTTP 200 at /next") as error:
+        await login.async_start("driver@example.com", "secret", MFA_METHOD_SMS)
+
+    assert "private-state" not in str(error.value)
+    assert len(session.calls) == 3
+
+
+@pytest.mark.parametrize("status", [403, 429, 500])
+async def test_http_failure_is_not_an_unsupported_mfa_screen(status: int) -> None:
+    session = FakeSession(
+        request_responses=[FakeResponse("", body=LOGIN_HTML), FakeResponse("", status, "Failed")]
+    )
+    login = MyQLoginSession(cast(ClientSession, session))
+
+    with pytest.raises(MyQApiError) as error:
+        await login.async_start("driver@example.com", "secret", MFA_METHOD_SMS)
+
+    assert not isinstance(error.value, MyQUnsupportedAuthPageError)
+
+
+@pytest.mark.parametrize(
+    ("body", "error_type"),
+    [
+        ('<form action="/next"><button>Continue</button></form>', MyQUnsupportedAuthPageError),
+        ("<html>Verify you are human</html>", MyQCloudflareChallengeError),
+    ],
+)
+async def test_new_screen_after_mfa_requires_browser(
+    body: str, error_type: type[MyQApiError | MyQCloudflareChallengeError]
+) -> None:
+    session = FakeSession(
+        request_responses=[
+            FakeResponse("", body=LOGIN_HTML),
+            FakeResponse("", body=_mfa_html("Email")),
+            FakeResponse("", body=body),
+        ]
+    )
+    login = MyQLoginSession(cast(ClientSession, session))
+    await login.async_start("driver@example.com", "secret", MFA_METHOD_EMAIL)
+
+    with pytest.raises(error_type):
+        await login.async_submit_mfa("123456")
 
 
 async def test_expired_access_token_refreshes_once_for_concurrent_callers() -> None:

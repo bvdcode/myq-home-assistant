@@ -28,3 +28,7 @@ class MyQInvalidCallbackError(MyQError):
 
 class MyQApiError(MyQError):
     pass
+
+
+class MyQUnsupportedAuthPageError(MyQApiError):
+    pass

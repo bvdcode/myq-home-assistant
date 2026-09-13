@@ -34,6 +34,7 @@ from .exceptions import (
     MyQInvalidCallbackError,
     MyQInvalidCredentialsError,
     MyQInvalidMfaError,
+    MyQUnsupportedAuthPageError,
 )
 from .models import MyQConfigData, MyQConfigEntry, OAuthTokens
 
@@ -278,6 +279,8 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 attempt = await self._async_submit_mfa(code)
                 if attempt.tokens is not None:
                     return await self._async_finish(attempt.tokens)
+                if attempt.browser_url is not None:
+                    return await self.async_step_browser()
                 errors["base"] = attempt.error or "unknown"
 
         return self.async_show_form(
@@ -297,8 +300,8 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except MyQInvalidCredentialsError:
             self._close_login()
             return LoginAttempt(error="invalid_auth")
-        except MyQCloudflareChallengeError:
-            return LoginAttempt(browser_url=self._start_browser())
+        except (MyQCloudflareChallengeError, MyQUnsupportedAuthPageError) as error:
+            return self._browser_fallback(error, step="login")
         except ClientError:
             self._close_login()
             return LoginAttempt(error="cannot_connect")
@@ -333,6 +336,8 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             tokens = await self._required_login().async_submit_mfa(code)
         except MyQInvalidMfaError:
             return LoginAttempt(error="invalid_mfa")
+        except (MyQCloudflareChallengeError, MyQUnsupportedAuthPageError) as error:
+            return self._browser_fallback(error, step="MFA verification")
         except ClientError:
             return LoginAttempt(error="cannot_connect")
         except MyQError:
@@ -399,6 +404,21 @@ class MyQConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _start_browser(self) -> str:
         self._browser_url = self._required_login().start_browser()
         return self._browser_url
+
+    def _browser_fallback(
+        self,
+        error: MyQCloudflareChallengeError | MyQUnsupportedAuthPageError,
+        *,
+        step: str,
+    ) -> LoginAttempt:
+        reason = f"{type(error).__name__}: {error}".rstrip(": ")
+        _LOGGER.warning(
+            "Automatic MyQ authentication could not continue during %s; "
+            "offering browser sign-in: %s",
+            step,
+            reason,
+        )
+        return LoginAttempt(browser_url=self._start_browser())
 
     def _restart_browser(self, error: str) -> LoginAttempt:
         self._start_browser()

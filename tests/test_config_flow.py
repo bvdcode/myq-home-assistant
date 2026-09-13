@@ -1,5 +1,7 @@
+import logging
 from unittest.mock import MagicMock
 
+import pytest
 from homeassistant import config_entries, data_entry_flow
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -17,6 +19,7 @@ from custom_components.myq.exceptions import (
     MyQInvalidCallbackError,
     MyQInvalidCredentialsError,
     MyQInvalidMfaError,
+    MyQUnsupportedAuthPageError,
 )
 from custom_components.myq.models import GarageDoor, OAuthTokens
 
@@ -105,11 +108,15 @@ async def test_invalid_credentials_remain_on_user_form(
     mock_login_session.http_session.detach.assert_called_once_with()
 
 
-async def test_cloudflare_challenge_starts_browser_sign_in(
+@pytest.mark.parametrize("error_type", [MyQCloudflareChallengeError, MyQUnsupportedAuthPageError])
+async def test_unsupported_authentication_starts_browser_sign_in(
     hass: HomeAssistant,
     mock_login_session: MagicMock,
+    error_type: type[MyQCloudflareChallengeError | MyQUnsupportedAuthPageError],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    mock_login_session.async_start.side_effect = MyQCloudflareChallengeError
+    detail = "HTTP 200 at /AccountMfa/VerifyOtp, forms=1"
+    mock_login_session.async_start.side_effect = error_type(detail)
 
     result = await _submit_credentials(hass)
 
@@ -119,6 +126,12 @@ async def test_cloudflare_challenge_starts_browser_sign_in(
         "authorization_url": "https://partner-identity.myq-cloud.com/connect/authorize",
         "email": EMAIL,
     }
+    assert (
+        "custom_components.myq.config_flow",
+        logging.WARNING,
+        "Automatic MyQ authentication could not continue during login; "
+        f"offering browser sign-in: {error_type.__name__}: {detail}",
+    ) in caplog.record_tuples
 
 
 async def test_browser_sign_in_can_be_selected_without_password(
@@ -213,6 +226,51 @@ async def test_invalid_mfa_can_be_retried(
     assert result["type"] is data_entry_flow.FlowResultType.FORM
     assert result["errors"] == {"base": "invalid_mfa"}
     mock_login_session.http_session.detach.assert_not_called()
+
+
+@pytest.mark.parametrize("error_type", [MyQCloudflareChallengeError, MyQUnsupportedAuthPageError])
+async def test_unsupported_screen_after_mfa_starts_browser_sign_in(
+    hass: HomeAssistant,
+    mock_login_session: MagicMock,
+    error_type: type[MyQCloudflareChallengeError | MyQUnsupportedAuthPageError],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    mock_login_session.async_start.return_value = None
+    mock_login_session.async_submit_mfa.side_effect = error_type
+    result = await _submit_credentials(hass)
+
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"code": "123456"})
+
+    assert result["type"] is data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "browser"
+    mock_login_session.start_browser.assert_called_once_with()
+    assert (
+        "custom_components.myq.config_flow",
+        logging.WARNING,
+        "Automatic MyQ authentication could not continue during MFA verification; "
+        f"offering browser sign-in: {error_type.__name__}",
+    ) in caplog.record_tuples
+
+
+async def test_unsupported_reauthentication_preserves_existing_entry(
+    hass: HomeAssistant,
+    mock_login_session: MagicMock,
+) -> None:
+    original_data = _entry_data()
+    entry = MockConfigEntry(domain=DOMAIN, unique_id=EMAIL, data=original_data)
+    entry.add_to_hass(hass)
+    mock_login_session.async_start.side_effect = MyQUnsupportedAuthPageError
+    result = await entry.start_reauth_flow(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "reauth_credentials"}
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"password": PASSWORD, CONF_MFA_METHOD: MFA_METHOD_SMS}
+    )
+
+    assert result["step_id"] == "browser"
+    assert entry.data == original_data
 
 
 async def test_user_flow_aborts_duplicate_account(hass: HomeAssistant) -> None:
