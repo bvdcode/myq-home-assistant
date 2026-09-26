@@ -24,6 +24,7 @@ OAUTH_CLIENT_ID: Final = "ANDROID_CGI_MYQ"
 OAUTH_REDIRECT_URI: Final = "com.myqops://android"
 OAUTH_SCOPE: Final = "MyQ_Residential offline_access"
 APP_VERSION: Final = "5.243.1.73243"
+MYQ_APPLICATION_ID: Final = "D9D7B25035D549D8A3EA16A9FFB8C927D4A19B55B8944011B2670A8321BF8312"
 USER_AGENT: Final = "sdk_gphone_x86/Android 11"
 BROWSER_USER_AGENT: Final = (
     "Mozilla/5.0 (Linux; Android 10; K) "

@@ -56,7 +56,13 @@ async def test_client_discovers_garage_doors() -> None:
             last_device_activation_source="myq_app",
         ),
     )
+    assert session.calls[1].url == (
+        "https://devices.myq-cloud.com/api/v5.2/Accounts/account-1/Devices"
+    )
     assert session.calls[1].kwargs["headers"]["Authorization"] == "Bearer access"
+    assert session.calls[1].kwargs["headers"]["MyQApplicationId"] == (
+        "D9D7B25035D549D8A3EA16A9FFB8C927D4A19B55B8944011B2670A8321BF8312"
+    )
 
 
 async def test_commands_use_put_endpoints() -> None:
@@ -77,12 +83,12 @@ async def test_commands_use_put_endpoints() -> None:
     assert [(call.method, call.url) for call in session.calls] == [
         (
             "PUT",
-            "https://account-devices-gdo.myq-cloud.com/api/v6.0/"
+            "https://account-devices-gdo.myq-cloud.com/api/v5.2/"
             "accounts/account-1/door_openers/door-1/open",
         ),
         (
             "PUT",
-            "https://account-devices-gdo.myq-cloud.com/api/v6.0/"
+            "https://account-devices-gdo.myq-cloud.com/api/v5.2/"
             "accounts/account-1/door_openers/door-1/close",
         ),
     ]

@@ -14,6 +14,7 @@ from .const import (
     BRAND_ID,
     DEVICES_BASE_URL,
     GARAGE_DEVICES_BASE_URL,
+    MYQ_APPLICATION_ID,
     USER_AGENT,
 )
 from .exceptions import MyQApiError, MyQAuthenticationError
@@ -70,7 +71,7 @@ class MyQClient:
     ) -> tuple[GarageDoor, ...]:
         payload = await self._async_request_json(
             "GET",
-            f"{DEVICES_BASE_URL}/api/v6.2/Accounts/{account.account_id}/Devices",
+            f"{DEVICES_BASE_URL}/api/v5.2/Accounts/{account.account_id}/Devices",
         )
         raw_items = payload.get("items")
         if not isinstance(raw_items, list):
@@ -88,7 +89,7 @@ class MyQClient:
 
     async def _async_command(self, door: GarageDoor, command: str) -> None:
         url = (
-            f"{GARAGE_DEVICES_BASE_URL}/api/v6.0/accounts/{door.account_id}/"
+            f"{GARAGE_DEVICES_BASE_URL}/api/v5.2/accounts/{door.account_id}/"
             f"door_openers/{door.serial_number}/{command}"
         )
         await self._async_request("PUT", url)
@@ -181,5 +182,6 @@ def _api_headers(access_token: str) -> dict[str, str]:
         "App-Version": APP_VERSION,
         "Authorization": f"Bearer {access_token}",
         "BrandId": BRAND_ID,
+        "MyQApplicationId": MYQ_APPLICATION_ID,
         "User-Agent": USER_AGENT,
     }
