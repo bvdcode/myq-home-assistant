@@ -42,20 +42,7 @@ class _BrowserAuthorization:
         if self._consumed or time.monotonic() >= self._expires_at:
             raise MyQBrowserSessionExpiredError
 
-        callback = urllib.parse.urlsplit(callback_url)
-        expected = urllib.parse.urlsplit(OAUTH_REDIRECT_URI)
-        if (
-            callback.scheme != expected.scheme
-            or callback.netloc != expected.netloc
-            or callback.path != expected.path
-            or callback.fragment
-        ):
-            raise MyQInvalidCallbackError
-
-        parameters = urllib.parse.parse_qs(callback.query, keep_blank_values=True)
-        if "error" in parameters:
-            raise MyQInvalidCallbackError
-
+        parameters = _callback_parameters(callback_url)
         code = _single_parameter(parameters, "code")
         state = _single_parameter(parameters, "state")
         issuer = _single_parameter(parameters, "iss")
@@ -64,6 +51,23 @@ class _BrowserAuthorization:
 
         self._consumed = True
         return code
+
+
+def _callback_parameters(callback_url: str) -> dict[str, list[str]]:
+    callback = urllib.parse.urlsplit(callback_url)
+    expected = urllib.parse.urlsplit(OAUTH_REDIRECT_URI)
+    if (
+        callback.scheme != expected.scheme
+        or callback.netloc != expected.netloc
+        or callback.path != expected.path
+        or callback.fragment
+    ):
+        raise MyQInvalidCallbackError
+
+    parameters = urllib.parse.parse_qs(callback.query, keep_blank_values=True)
+    if "error" in parameters:
+        raise MyQInvalidCallbackError
+    return parameters
 
 
 def _single_parameter(parameters: dict[str, list[str]], name: str) -> str:

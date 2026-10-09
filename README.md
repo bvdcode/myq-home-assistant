@@ -12,12 +12,13 @@ The integration provides:
 
 - configuration entirely through the Home Assistant user interface;
 - email or SMS verification during sign-in;
-- automatic session renewal without repeated verification codes;
-- discovery of every garage door attached to the account;
+- automatic OAuth token refresh while authorization remains valid;
+- discovery of garage doors exposed by the MyQ account;
 - current door state and cloud availability;
 - open and close controls;
 - a door-open binary sensor for Alarmo and other sensor-based automations;
-- vacation mode, work-light, fault, cycle-count, and activation diagnostics;
+- vacation mode, work-light, fault, cycle-count, and activation diagnostics
+  when provided by MyQ;
 - cloud polling every 30 seconds.
 
 ## Alarmo
@@ -70,10 +71,13 @@ console, and find the message that starts with
 have a registered handler. Copy the complete `com.myqops://android?...`
 address from that message and paste it into Home Assistant.
 
+Browser sign-in completes the interactive login step. It does not bypass
+restrictions on token exchange or device API access.
+
 The password is used only during sign-in and is not stored. Home Assistant
 stores the issued OAuth tokens in the config entry and refreshes them
-automatically. Reauthentication is requested only when MyQ invalidates the
-stored authorization.
+automatically. If MyQ rejects token refresh or account access, Home Assistant
+requests reauthentication.
 
 ## Safety
 
