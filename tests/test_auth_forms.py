@@ -110,3 +110,37 @@ def test_does_not_treat_an_email_field_as_an_otp_on_the_verification_page() -> N
     )[0]
 
     assert form.otp_field is None
+
+
+@pytest.mark.parametrize("action", ["", "/AccountMfa/VerifyOtp", "VerifyOtp?ReturnUrl=%2Fconnect"])
+@pytest.mark.parametrize(
+    ("markup", "expected_field"),
+    [
+        ('<input name="Code">', "Code"),
+        ('<input name="reference"><input name="MfaCode">', "MfaCode"),
+        ('<input name="reference">', "reference"),
+        ('<input name="Code"><input name="BackupCode">', None),
+        ('<input name="first"><input name="second">', None),
+        ('<input name="Otp1"><input name="Otp2"><input name="Code">', None),
+    ],
+)
+def test_verification_page_selects_only_an_unambiguous_otp_field(
+    action: str,
+    markup: str,
+    expected_field: str | None,
+) -> None:
+    form = _parse_forms(
+        f'<form action="{action}">{markup}</form>',
+        "https://example.com/AccountMfa/VerifyOtp",
+    )[0]
+
+    assert form.otp_field == expected_field
+
+
+def test_does_not_apply_verification_page_rules_to_login_forms() -> None:
+    form = _parse_forms(
+        '<form><input name="Code"></form>',
+        "https://example.com/Account/Login",
+    )[0]
+
+    assert form.otp_field is None

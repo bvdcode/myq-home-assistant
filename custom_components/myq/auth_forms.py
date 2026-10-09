@@ -93,17 +93,30 @@ def _parse_form(
             if _is_otp_field(identity):
                 otp_fields.append(name)
 
-    if not otp_fields and "verifyotp" in urlsplit(urljoin(page_url, action)).path.casefold():
-        otp_fields = [name for name in visible_fields if name.casefold().endswith("code")]
-        if not otp_fields and len(visible_fields) == 1:
-            otp_fields = visible_fields
     return ParsedForm(
         action,
         fields,
         _single_field(email_fields),
         _single_field(password_fields),
-        _single_field(otp_fields),
+        _otp_field(action, page_url, otp_fields, visible_fields),
     )
+
+
+def _otp_field(
+    action: str,
+    page_url: str,
+    otp_fields: list[str],
+    visible_fields: list[str],
+) -> str | None:
+    if otp_fields:
+        return _single_field(otp_fields)
+    if "verifyotp" not in urlsplit(urljoin(page_url, action)).path.casefold():
+        return None
+
+    code_fields = [name for name in visible_fields if name.casefold().endswith("code")]
+    if code_fields:
+        return _single_field(code_fields)
+    return _single_field(visible_fields)
 
 
 def _is_otp_field(identity: str) -> bool:
