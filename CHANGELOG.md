@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v0.2.6 (2026-10-09)
+
+### Refactoring
+
+- Centralize garage door motion state
+  ([`6425d6a`](https://github.com/bvdcode/myq-home-assistant/commit/6425d6a28d6b3045668ffda3d90cefb3c9d0e9b9))
+
+- Isolate MFA field selection
+  ([`f1754c0`](https://github.com/bvdcode/myq-home-assistant/commit/f1754c019abdbf7086c6d79e3f4576a62bfc2b3c))
+
+- Separate browser callback validation
+  ([`064a0cd`](https://github.com/bvdcode/myq-home-assistant/commit/064a0cdc7289f7c7ba68893a57080fb6cdbfd5d0))
+
+
 ## v0.2.5 (2026-10-03)
 
 ### Features
