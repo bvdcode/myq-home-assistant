@@ -59,3 +59,13 @@ class GarageDoor:
         if is_closed is None:
             return None
         return not is_closed
+
+    @property
+    def is_opening(self) -> bool:
+        """Return whether the door is opening."""
+        return self.door_state == "opening"
+
+    @property
+    def is_closing(self) -> bool:
+        """Return whether the door is closing."""
+        return self.door_state == "closing"

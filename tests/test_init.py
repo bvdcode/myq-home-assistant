@@ -139,23 +139,33 @@ async def test_door_open_sensor_tracks_cover_without_additional_polling(
     assert cover_id is not None
     assert client.async_get_garage_doors.await_count == 1
     runtime = cast(MyQRuntimeData, entry.runtime_data)
-    states: tuple[tuple[str | None, bool, str, str], ...] = (
-        ("closed", True, "off", "closed"),
-        ("open", True, "on", "open"),
-        ("opening", True, "on", "opening"),
-        ("closing", True, "on", "closing"),
-        ("moving", True, "on", "open"),
-        ("stopped", True, "on", "open"),
-        ("unknown", True, STATE_UNKNOWN, STATE_UNKNOWN),
-        (None, True, STATE_UNKNOWN, STATE_UNKNOWN),
-        ("unrecognized", True, STATE_UNKNOWN, STATE_UNKNOWN),
-        ("open", False, STATE_UNAVAILABLE, STATE_UNAVAILABLE),
+    states: tuple[tuple[str | None, bool, str, str, bool, bool], ...] = (
+        ("closed", True, "off", "closed", False, False),
+        ("open", True, "on", "open", False, False),
+        ("opening", True, "on", "opening", True, False),
+        ("closing", True, "on", "closing", False, True),
+        ("moving", True, "on", "open", False, False),
+        ("stopped", True, "on", "open", False, False),
+        ("unknown", True, STATE_UNKNOWN, STATE_UNKNOWN, False, False),
+        (None, True, STATE_UNKNOWN, STATE_UNKNOWN, False, False),
+        ("unrecognized", True, STATE_UNKNOWN, STATE_UNKNOWN, False, False),
+        ("open", False, STATE_UNAVAILABLE, STATE_UNAVAILABLE, False, False),
+        ("opening", False, STATE_UNAVAILABLE, STATE_UNAVAILABLE, True, False),
+        ("closing", False, STATE_UNAVAILABLE, STATE_UNAVAILABLE, False, True),
     )
 
-    for poll_count, (door_state, online, expected_sensor, expected_cover) in enumerate(states, 2):
-        client.async_get_garage_doors.return_value = (
-            replace(DOOR, door_state=door_state, online=online),
-        )
+    for poll_count, (
+        door_state,
+        online,
+        expected_sensor,
+        expected_cover,
+        expected_opening,
+        expected_closing,
+    ) in enumerate(states, 2):
+        door = replace(DOOR, door_state=door_state, online=online)
+        assert door.is_opening is expected_opening
+        assert door.is_closing is expected_closing
+        client.async_get_garage_doors.return_value = (door,)
         await runtime.coordinator.async_refresh()
         await hass.async_block_till_done()
 

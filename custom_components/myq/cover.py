@@ -45,12 +45,12 @@ class MyQGarageDoor(MyQEntity, CoverEntity):
     @property
     def is_opening(self) -> bool:
         door = self.door
-        return door is not None and door.door_state == "opening"
+        return door is not None and door.is_opening
 
     @property
     def is_closing(self) -> bool:
         door = self.door
-        return door is not None and door.door_state == "closing"
+        return door is not None and door.is_closing
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         del kwargs
