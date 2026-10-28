@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Anmeldemethode wählen",
+        "description": "Die automatische Anmeldung wird empfohlen. Falls MyQ den automatischen Ablauf blockiert, kannst du dich auch über einen Browser anmelden.",
+        "menu_options": {
+          "credentials": "Automatisch anmelden",
+          "browser_start": "Mit einem Browser anmelden"
+        }
+      },
+      "credentials": {
+        "title": "MyQ verbinden",
+        "description": "Gib die Zugangsdaten deines MyQ-Kontos ein.",
+        "data": {
+          "email": "E-Mail",
+          "password": "Passwort",
+          "mfa_method": "Bestätigungscodes senden per"
+        }
+      },
+      "browser_start": {
+        "title": "Mit einem Browser anmelden",
+        "description": "Gib die E-Mail-Adresse deines MyQ-Kontos ein. Passwort und Bestätigungscode gibst du ausschließlich auf der MyQ-Website ein.",
+        "data": {
+          "email": "E-Mail"
+        }
+      },
+      "mfa": {
+        "title": "Bestätigungscode",
+        "description": "Gib den sechsstelligen Bestätigungscode ein, den du erhalten hast.",
+        "data": {
+          "code": "Bestätigungscode"
+        }
+      },
+      "reauth_confirm": {
+        "title": "MyQ erneut verbinden",
+        "description": "Wähle aus, wie {email} erneut verbunden werden soll.",
+        "menu_options": {
+          "reauth_credentials": "Automatisch anmelden",
+          "browser_start": "Mit einem Browser anmelden"
+        }
+      },
+      "reauth_credentials": {
+        "title": "MyQ erneut verbinden",
+        "description": "Gib das aktuelle Passwort für {email} ein.",
+        "data": {
+          "password": "Passwort",
+          "mfa_method": "Bestätigungscodes senden per"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Bestätigungscode",
+        "description": "Gib den sechsstelligen Bestätigungscode ein, den du erhalten hast.",
+        "data": {
+          "code": "Bestätigungscode"
+        }
+      },
+      "browser": {
+        "title": "Mit einem Browser anmelden",
+        "description": "Öffne die [MyQ-Anmeldung]({authorization_url}) in einem Browser und melde dich mit {email} an. Wenn der Browser versucht, `com.myqops://android` zu öffnen, kopiere die vollständige Rückrufadresse und füge sie unten ein. Falls keine Adresse angezeigt wird, drücke F12, öffne die Browserkonsole, suche die Meldung `Failed to launch 'com.myqops://android?...'` und kopiere daraus die vollständige Adresse. Der Link ist 10 Minuten gültig.",
+        "data": {
+          "callback_url": "Rückrufadresse"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "Die Anmeldesitzung ist abgelaufen. Beginne erneut.",
+      "cannot_connect": "Verbindung zu MyQ nicht möglich.",
+      "browser_auth_failed": "MyQ hat die Browser-Autorisierung abgelehnt. Öffne den neuen Anmeldelink und versuche es erneut.",
+      "browser_session_expired": "Die Browser-Anmeldesitzung ist abgelaufen. Öffne den neuen Anmeldelink und versuche es erneut.",
+      "invalid_auth": "Die E-Mail-Adresse oder das Passwort ist falsch.",
+      "invalid_callback": "Die Rückrufadresse ist ungültig oder gehört zu einem anderen Anmeldeversuch.",
+      "invalid_mfa": "Der Bestätigungscode ist ungültig oder abgelaufen.",
+      "unknown": "Unerwarteter MyQ-Fehler. Details findest du in den Protokollen."
+    },
+    "abort": {
+      "cannot_connect": "Die Authentifizierung war erfolgreich, aber die MyQ-Geräteerkennung war nicht erreichbar.",
+      "no_devices": "In diesem MyQ-Konto wurden keine Garagentore gefunden.",
+      "reauth_successful": "MyQ wurde erfolgreich erneut verbunden.",
+      "unknown": "MyQ hat eine unerwartete Antwort zurückgegeben."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "E-Mail",
+        "sms": "SMS"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Tor offen"
+      },
+      "vacation_mode": {
+        "name": "Urlaubsmodus"
+      },
+      "work_light": {
+        "name": "Beleuchtung"
+      },
+      "active_fault": {
+        "name": "Aktiver Fehler"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Garagentor"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Status der Notstrombatterie"
+      },
+      "absolute_cycle_count": {
+        "name": "Gesamtzahl der Zyklen"
+      },
+      "service_cycle_count": {
+        "name": "Zyklen seit der Wartung"
+      },
+      "last_activation_source": {
+        "name": "Letzte Auslösequelle"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "Der MyQ-Befehl für das Garagentor ist fehlgeschlagen."
+    }
+  }
+}

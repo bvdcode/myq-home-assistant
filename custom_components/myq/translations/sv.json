@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Välj inloggningsmetod",
+        "description": "Automatisk inloggning rekommenderas. Om MyQ blockerar det automatiska flödet kan du också logga in med en webbläsare.",
+        "menu_options": {
+          "credentials": "Logga in automatiskt",
+          "browser_start": "Logga in med en webbläsare"
+        }
+      },
+      "credentials": {
+        "title": "Anslut MyQ",
+        "description": "Ange inloggningsuppgifterna för ditt MyQ-konto.",
+        "data": {
+          "email": "E-post",
+          "password": "Lösenord",
+          "mfa_method": "Skicka verifieringskoder via"
+        }
+      },
+      "browser_start": {
+        "title": "Logga in med en webbläsare",
+        "description": "Ange e-postadressen för ditt MyQ-konto. Lösenordet och verifieringskoden anges bara på MyQ:s webbplats.",
+        "data": {
+          "email": "E-post"
+        }
+      },
+      "mfa": {
+        "title": "Verifieringskod",
+        "description": "Ange den sexsiffriga verifieringskod som du fick.",
+        "data": {
+          "code": "Verifieringskod"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Återanslut MyQ",
+        "description": "Välj hur {email} ska återanslutas.",
+        "menu_options": {
+          "reauth_credentials": "Logga in automatiskt",
+          "browser_start": "Logga in med en webbläsare"
+        }
+      },
+      "reauth_credentials": {
+        "title": "Återanslut MyQ",
+        "description": "Ange det nuvarande lösenordet för {email}.",
+        "data": {
+          "password": "Lösenord",
+          "mfa_method": "Skicka verifieringskoder via"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Verifieringskod",
+        "description": "Ange den sexsiffriga verifieringskod som du fick.",
+        "data": {
+          "code": "Verifieringskod"
+        }
+      },
+      "browser": {
+        "title": "Logga in med en webbläsare",
+        "description": "[Öppna MyQ-inloggningen]({authorization_url}) i en webbläsare och logga in med {email}. När webbläsaren försöker öppna `com.myqops://android` kopierar du hela återanropsadressen och klistrar in den nedan. Om ingen adress visas trycker du på F12, öppnar webbläsarkonsolen, letar upp meddelandet `Failed to launch 'com.myqops://android?...'` och kopierar hela adressen därifrån. Länken slutar gälla efter 10 minuter.",
+        "data": {
+          "callback_url": "Återanropsadress"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "Inloggningssessionen har gått ut. Börja om.",
+      "cannot_connect": "Det går inte att ansluta till MyQ.",
+      "browser_auth_failed": "MyQ avvisade auktoriseringen i webbläsaren. Öppna den nya inloggningslänken och försök igen.",
+      "browser_session_expired": "Inloggningssessionen i webbläsaren har gått ut. Öppna den nya inloggningslänken och försök igen.",
+      "invalid_auth": "E-postadressen eller lösenordet är felaktigt.",
+      "invalid_callback": "Återanropsadressen är ogiltig eller hör till ett annat inloggningsförsök.",
+      "invalid_mfa": "Verifieringskoden är ogiltig eller har gått ut.",
+      "unknown": "Oväntat MyQ-fel. Se loggarna för mer information."
+    },
+    "abort": {
+      "cannot_connect": "Autentiseringen lyckades, men MyQ:s enhetsidentifiering gick inte att nå.",
+      "no_devices": "Inga garageportar hittades på det här MyQ-kontot.",
+      "reauth_successful": "MyQ har återanslutits.",
+      "unknown": "MyQ returnerade ett oväntat svar."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "E-post",
+        "sms": "Sms"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Port öppen"
+      },
+      "vacation_mode": {
+        "name": "Semesterläge"
+      },
+      "work_light": {
+        "name": "Belysning"
+      },
+      "active_fault": {
+        "name": "Aktivt fel"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Garageport"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Status för reservbatteri"
+      },
+      "absolute_cycle_count": {
+        "name": "Totalt antal cykler"
+      },
+      "service_cycle_count": {
+        "name": "Cykler sedan service"
+      },
+      "last_activation_source": {
+        "name": "Senaste aktiveringskälla"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "MyQ-kommandot för garageporten misslyckades."
+    }
+  }
+}

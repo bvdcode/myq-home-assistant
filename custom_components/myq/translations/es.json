@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Elige un método de inicio de sesión",
+        "description": "Se recomienda el inicio de sesión automático. Si MyQ bloquea el proceso automático, también puedes iniciar sesión con un navegador.",
+        "menu_options": {
+          "credentials": "Iniciar sesión automáticamente",
+          "browser_start": "Iniciar sesión con un navegador"
+        }
+      },
+      "credentials": {
+        "title": "Conectar MyQ",
+        "description": "Introduce las credenciales de tu cuenta de MyQ.",
+        "data": {
+          "email": "Correo electrónico",
+          "password": "Contraseña",
+          "mfa_method": "Enviar códigos de verificación por"
+        }
+      },
+      "browser_start": {
+        "title": "Iniciar sesión con un navegador",
+        "description": "Introduce la dirección de correo electrónico de tu cuenta de MyQ. La contraseña y el código de verificación solo se introducirán en el sitio web de MyQ.",
+        "data": {
+          "email": "Correo electrónico"
+        }
+      },
+      "mfa": {
+        "title": "Código de verificación",
+        "description": "Introduce el código de verificación de seis dígitos que has recibido.",
+        "data": {
+          "code": "Código de verificación"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reconectar MyQ",
+        "description": "Elige cómo reconectar {email}.",
+        "menu_options": {
+          "reauth_credentials": "Iniciar sesión automáticamente",
+          "browser_start": "Iniciar sesión con un navegador"
+        }
+      },
+      "reauth_credentials": {
+        "title": "Reconectar MyQ",
+        "description": "Introduce la contraseña actual de {email}.",
+        "data": {
+          "password": "Contraseña",
+          "mfa_method": "Enviar códigos de verificación por"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Código de verificación",
+        "description": "Introduce el código de verificación de seis dígitos que has recibido.",
+        "data": {
+          "code": "Código de verificación"
+        }
+      },
+      "browser": {
+        "title": "Iniciar sesión con un navegador",
+        "description": "[Abre el inicio de sesión de MyQ]({authorization_url}) en un navegador e inicia sesión con {email}. Cuando el navegador intente abrir `com.myqops://android`, copia la dirección de retorno completa y pégala a continuación. Si no aparece ninguna dirección, pulsa F12, abre la consola del navegador, busca el mensaje `Failed to launch 'com.myqops://android?...'` y copia de él la dirección completa. El enlace caduca en 10 minutos.",
+        "data": {
+          "callback_url": "Dirección de retorno"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "La sesión de inicio de sesión ha caducado. Vuelve a empezar.",
+      "cannot_connect": "No se puede conectar con MyQ.",
+      "browser_auth_failed": "MyQ ha rechazado la autorización del navegador. Abre el nuevo enlace de inicio de sesión y vuelve a intentarlo.",
+      "browser_session_expired": "La sesión de inicio de sesión en el navegador ha caducado. Abre el nuevo enlace de inicio de sesión y vuelve a intentarlo.",
+      "invalid_auth": "La dirección de correo electrónico o la contraseña no son correctas.",
+      "invalid_callback": "La dirección de retorno no es válida o pertenece a otro intento de inicio de sesión.",
+      "invalid_mfa": "El código de verificación no es válido o ha caducado.",
+      "unknown": "Error inesperado de MyQ. Consulta los registros para obtener más detalles."
+    },
+    "abort": {
+      "cannot_connect": "La autenticación se ha completado, pero no se ha podido acceder al servicio de detección de dispositivos de MyQ.",
+      "no_devices": "No se han encontrado puertas de garaje en esta cuenta de MyQ.",
+      "reauth_successful": "MyQ se ha reconectado correctamente.",
+      "unknown": "MyQ ha devuelto una respuesta inesperada."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "Correo electrónico",
+        "sms": "Mensaje de texto (SMS)"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Puerta abierta"
+      },
+      "vacation_mode": {
+        "name": "Modo vacaciones"
+      },
+      "work_light": {
+        "name": "Luz de cortesía"
+      },
+      "active_fault": {
+        "name": "Fallo activo"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Puerta de garaje"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Estado de la batería de respaldo"
+      },
+      "absolute_cycle_count": {
+        "name": "Número total de ciclos"
+      },
+      "service_cycle_count": {
+        "name": "Ciclos desde el mantenimiento"
+      },
+      "last_activation_source": {
+        "name": "Origen de la última activación"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "El comando de MyQ para la puerta de garaje ha fallado."
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "选择登录方式",
+        "description": "建议使用自动登录。如果 MyQ 阻止了自动登录流程，也可以通过浏览器登录。",
+        "menu_options": {
+          "credentials": "自动登录",
+          "browser_start": "通过浏览器登录"
+        }
+      },
+      "credentials": {
+        "title": "连接 MyQ",
+        "description": "输入您的 MyQ 账户凭据。",
+        "data": {
+          "email": "电子邮箱",
+          "password": "密码",
+          "mfa_method": "验证码发送方式"
+        }
+      },
+      "browser_start": {
+        "title": "通过浏览器登录",
+        "description": "输入您的 MyQ 账户的电子邮箱地址。密码和验证码只会在 MyQ 网站上输入。",
+        "data": {
+          "email": "电子邮箱"
+        }
+      },
+      "mfa": {
+        "title": "验证码",
+        "description": "输入您收到的六位验证码。",
+        "data": {
+          "code": "验证码"
+        }
+      },
+      "reauth_confirm": {
+        "title": "重新连接 MyQ",
+        "description": "选择重新连接 {email} 的方式。",
+        "menu_options": {
+          "reauth_credentials": "自动登录",
+          "browser_start": "通过浏览器登录"
+        }
+      },
+      "reauth_credentials": {
+        "title": "重新连接 MyQ",
+        "description": "输入 {email} 的当前密码。",
+        "data": {
+          "password": "密码",
+          "mfa_method": "验证码发送方式"
+        }
+      },
+      "reauth_mfa": {
+        "title": "验证码",
+        "description": "输入您收到的六位验证码。",
+        "data": {
+          "code": "验证码"
+        }
+      },
+      "browser": {
+        "title": "通过浏览器登录",
+        "description": "在浏览器中[打开 MyQ 登录页面]({authorization_url})，并使用 {email} 登录。当浏览器尝试打开 `com.myqops://android` 时，复制完整的回调地址并粘贴到下方。如果没有出现地址，请按 F12 打开浏览器控制台，找到 `Failed to launch 'com.myqops://android?...'` 消息，并从中复制完整地址。该链接将在 10 分钟后失效。",
+        "data": {
+          "callback_url": "回调地址"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "登录会话已过期，请重新开始。",
+      "cannot_connect": "无法连接到 MyQ。",
+      "browser_auth_failed": "MyQ 拒绝了浏览器授权。请打开新的登录链接并重试。",
+      "browser_session_expired": "浏览器登录会话已过期。请打开新的登录链接并重试。",
+      "invalid_auth": "电子邮箱地址或密码不正确。",
+      "invalid_callback": "回调地址无效，或属于另一次登录尝试。",
+      "invalid_mfa": "验证码无效或已过期。",
+      "unknown": "MyQ 发生意外错误。请查看日志了解详情。"
+    },
+    "abort": {
+      "cannot_connect": "身份验证成功，但无法访问 MyQ 设备发现服务。",
+      "no_devices": "此 MyQ 账户中未找到车库门。",
+      "reauth_successful": "MyQ 已成功重新连接。",
+      "unknown": "MyQ 返回了意外的响应。"
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "电子邮件",
+        "sms": "短信 (SMS)"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "门已打开"
+      },
+      "vacation_mode": {
+        "name": "度假模式"
+      },
+      "work_light": {
+        "name": "照明灯"
+      },
+      "active_fault": {
+        "name": "当前故障"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "车库门"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "备用电池状态"
+      },
+      "absolute_cycle_count": {
+        "name": "总运行次数"
+      },
+      "service_cycle_count": {
+        "name": "保养后运行次数"
+      },
+      "last_activation_source": {
+        "name": "上次触发来源"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "MyQ 车库门命令执行失败。"
+    }
+  }
+}

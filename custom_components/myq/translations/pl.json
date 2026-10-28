@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Wybierz metodę logowania",
+        "description": "Zalecane jest logowanie automatyczne. Jeśli MyQ blokuje automatyczne logowanie, możesz też zalogować się przez przeglądarkę.",
+        "menu_options": {
+          "credentials": "Zaloguj się automatycznie",
+          "browser_start": "Zaloguj się przez przeglądarkę"
+        }
+      },
+      "credentials": {
+        "title": "Połącz z MyQ",
+        "description": "Wprowadź dane logowania do konta MyQ.",
+        "data": {
+          "email": "Adres e-mail",
+          "password": "Hasło",
+          "mfa_method": "Wysyłaj kody weryfikacyjne przez"
+        }
+      },
+      "browser_start": {
+        "title": "Zaloguj się przez przeglądarkę",
+        "description": "Wprowadź adres e-mail konta MyQ. Hasło i kod weryfikacyjny wpiszesz wyłącznie na stronie MyQ.",
+        "data": {
+          "email": "Adres e-mail"
+        }
+      },
+      "mfa": {
+        "title": "Kod weryfikacyjny",
+        "description": "Wprowadź otrzymany sześciocyfrowy kod weryfikacyjny.",
+        "data": {
+          "code": "Kod weryfikacyjny"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Połącz ponownie z MyQ",
+        "description": "Wybierz sposób ponownego połączenia konta {email}.",
+        "menu_options": {
+          "reauth_credentials": "Zaloguj się automatycznie",
+          "browser_start": "Zaloguj się przez przeglądarkę"
+        }
+      },
+      "reauth_credentials": {
+        "title": "Połącz ponownie z MyQ",
+        "description": "Wprowadź aktualne hasło do konta {email}.",
+        "data": {
+          "password": "Hasło",
+          "mfa_method": "Wysyłaj kody weryfikacyjne przez"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Kod weryfikacyjny",
+        "description": "Wprowadź otrzymany sześciocyfrowy kod weryfikacyjny.",
+        "data": {
+          "code": "Kod weryfikacyjny"
+        }
+      },
+      "browser": {
+        "title": "Zaloguj się przez przeglądarkę",
+        "description": "[Otwórz stronę logowania MyQ]({authorization_url}) w przeglądarce i zaloguj się jako {email}. Gdy przeglądarka spróbuje otworzyć `com.myqops://android`, skopiuj pełny adres zwrotny i wklej go poniżej. Jeśli adres się nie pojawi, naciśnij F12, otwórz konsolę przeglądarki, znajdź komunikat `Failed to launch 'com.myqops://android?...'` i skopiuj z niego pełny adres. Link wygasa po 10 minutach.",
+        "data": {
+          "callback_url": "Adres zwrotny"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "Sesja logowania wygasła. Zacznij od nowa.",
+      "cannot_connect": "Nie można połączyć się z MyQ.",
+      "browser_auth_failed": "MyQ odrzucił autoryzację w przeglądarce. Otwórz nowy link logowania i spróbuj ponownie.",
+      "browser_session_expired": "Sesja logowania w przeglądarce wygasła. Otwórz nowy link logowania i spróbuj ponownie.",
+      "invalid_auth": "Adres e-mail lub hasło są nieprawidłowe.",
+      "invalid_callback": "Adres zwrotny jest nieprawidłowy lub należy do innej próby logowania.",
+      "invalid_mfa": "Kod weryfikacyjny jest nieprawidłowy lub wygasł.",
+      "unknown": "Nieoczekiwany błąd MyQ. Szczegóły znajdziesz w logach."
+    },
+    "abort": {
+      "cannot_connect": "Uwierzytelnianie powiodło się, ale usługa wykrywania urządzeń MyQ jest niedostępna.",
+      "no_devices": "Na tym koncie MyQ nie znaleziono bram garażowych.",
+      "reauth_successful": "Ponowne połączenie z MyQ powiodło się.",
+      "unknown": "MyQ zwrócił nieoczekiwaną odpowiedź."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "E-mail",
+        "sms": "Wiadomość tekstowa (SMS)"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Brama otwarta"
+      },
+      "vacation_mode": {
+        "name": "Tryb urlopowy"
+      },
+      "work_light": {
+        "name": "Oświetlenie"
+      },
+      "active_fault": {
+        "name": "Aktywna usterka"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Brama garażowa"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Stan akumulatora awaryjnego"
+      },
+      "absolute_cycle_count": {
+        "name": "Łączna liczba cykli"
+      },
+      "service_cycle_count": {
+        "name": "Cykle od serwisu"
+      },
+      "last_activation_source": {
+        "name": "Źródło ostatniego uruchomienia"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "Polecenie MyQ dla bramy garażowej nie powiodło się."
+    }
+  }
+}

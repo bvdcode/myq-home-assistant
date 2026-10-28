@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Scegli un metodo di accesso",
+        "description": "Si consiglia l'accesso automatico. Se MyQ blocca la procedura automatica, puoi anche accedere con un browser.",
+        "menu_options": {
+          "credentials": "Accedi automaticamente",
+          "browser_start": "Accedi con un browser"
+        }
+      },
+      "credentials": {
+        "title": "Connetti MyQ",
+        "description": "Inserisci le credenziali del tuo account MyQ.",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "mfa_method": "Invia i codici di verifica tramite"
+        }
+      },
+      "browser_start": {
+        "title": "Accedi con un browser",
+        "description": "Inserisci l'indirizzo email del tuo account MyQ. La password e il codice di verifica verranno inseriti solo sul sito web di MyQ.",
+        "data": {
+          "email": "Email"
+        }
+      },
+      "mfa": {
+        "title": "Codice di verifica",
+        "description": "Inserisci il codice di verifica a sei cifre che hai ricevuto.",
+        "data": {
+          "code": "Codice di verifica"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Riconnetti MyQ",
+        "description": "Scegli come riconnettere {email}.",
+        "menu_options": {
+          "reauth_credentials": "Accedi automaticamente",
+          "browser_start": "Accedi con un browser"
+        }
+      },
+      "reauth_credentials": {
+        "title": "Riconnetti MyQ",
+        "description": "Inserisci la password attuale di {email}.",
+        "data": {
+          "password": "Password",
+          "mfa_method": "Invia i codici di verifica tramite"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Codice di verifica",
+        "description": "Inserisci il codice di verifica a sei cifre che hai ricevuto.",
+        "data": {
+          "code": "Codice di verifica"
+        }
+      },
+      "browser": {
+        "title": "Accedi con un browser",
+        "description": "[Apri la pagina di accesso di MyQ]({authorization_url}) in un browser e accedi con {email}. Quando il browser prova ad aprire `com.myqops://android`, copia l'indirizzo di callback completo e incollalo qui sotto. Se non compare alcun indirizzo, premi F12, apri la console del browser, trova il messaggio `Failed to launch 'com.myqops://android?...'` e copia da lì l'indirizzo completo. Il link scade dopo 10 minuti.",
+        "data": {
+          "callback_url": "Indirizzo di callback"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "La sessione di accesso è scaduta. Ricomincia.",
+      "cannot_connect": "Impossibile connettersi a MyQ.",
+      "browser_auth_failed": "MyQ ha rifiutato l'autorizzazione del browser. Apri il nuovo link di accesso e riprova.",
+      "browser_session_expired": "La sessione di accesso nel browser è scaduta. Apri il nuovo link di accesso e riprova.",
+      "invalid_auth": "L'indirizzo email o la password non sono corretti.",
+      "invalid_callback": "L'indirizzo di callback non è valido o appartiene a un altro tentativo di accesso.",
+      "invalid_mfa": "Il codice di verifica non è valido o è scaduto.",
+      "unknown": "Errore MyQ imprevisto. Controlla i log per i dettagli."
+    },
+    "abort": {
+      "cannot_connect": "Autenticazione riuscita, ma il servizio di rilevamento dei dispositivi MyQ non è raggiungibile.",
+      "no_devices": "Nessuna porta del garage trovata in questo account MyQ.",
+      "reauth_successful": "MyQ è stato riconnesso correttamente.",
+      "unknown": "MyQ ha restituito una risposta imprevista."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "Email",
+        "sms": "SMS"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Porta aperta"
+      },
+      "vacation_mode": {
+        "name": "Modalità vacanza"
+      },
+      "work_light": {
+        "name": "Luce di cortesia"
+      },
+      "active_fault": {
+        "name": "Guasto attivo"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Porta del garage"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Stato della batteria di riserva"
+      },
+      "absolute_cycle_count": {
+        "name": "Numero totale di cicli"
+      },
+      "service_cycle_count": {
+        "name": "Cicli dalla manutenzione"
+      },
+      "last_activation_source": {
+        "name": "Origine dell'ultima attivazione"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "Il comando MyQ per la porta del garage non è riuscito."
+    }
+  }
+}

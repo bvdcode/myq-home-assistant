@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Vælg en loginmetode",
+        "description": "Automatisk login anbefales. Hvis MyQ blokerer det automatiske forløb, kan du også logge ind med en browser.",
+        "menu_options": {
+          "credentials": "Log ind automatisk",
+          "browser_start": "Log ind med en browser"
+        }
+      },
+      "credentials": {
+        "title": "Forbind MyQ",
+        "description": "Indtast loginoplysningerne til din MyQ-konto.",
+        "data": {
+          "email": "E-mail",
+          "password": "Adgangskode",
+          "mfa_method": "Send bekræftelseskoder via"
+        }
+      },
+      "browser_start": {
+        "title": "Log ind med en browser",
+        "description": "Indtast e-mailadressen til din MyQ-konto. Din adgangskode og bekræftelseskode indtastes kun på MyQ's websted.",
+        "data": {
+          "email": "E-mail"
+        }
+      },
+      "mfa": {
+        "title": "Bekræftelseskode",
+        "description": "Indtast den sekscifrede bekræftelseskode, du har modtaget.",
+        "data": {
+          "code": "Bekræftelseskode"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Genforbind MyQ",
+        "description": "Vælg, hvordan {email} skal genforbindes.",
+        "menu_options": {
+          "reauth_credentials": "Log ind automatisk",
+          "browser_start": "Log ind med en browser"
+        }
+      },
+      "reauth_credentials": {
+        "title": "Genforbind MyQ",
+        "description": "Indtast den nuværende adgangskode til {email}.",
+        "data": {
+          "password": "Adgangskode",
+          "mfa_method": "Send bekræftelseskoder via"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Bekræftelseskode",
+        "description": "Indtast den sekscifrede bekræftelseskode, du har modtaget.",
+        "data": {
+          "code": "Bekræftelseskode"
+        }
+      },
+      "browser": {
+        "title": "Log ind med en browser",
+        "description": "[Åbn MyQ-login]({authorization_url}) i en browser, og log ind med {email}. Når browseren forsøger at åbne `com.myqops://android`, skal du kopiere hele tilbagekaldsadressen og indsætte den nedenfor. Hvis der ikke vises nogen adresse, skal du trykke på F12, åbne browserkonsollen, finde meddelelsen `Failed to launch 'com.myqops://android?...'` og kopiere hele adressen derfra. Linket udløber efter 10 minutter.",
+        "data": {
+          "callback_url": "Tilbagekaldsadresse"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "Loginsessionen er udløbet. Start forfra.",
+      "cannot_connect": "Der kan ikke oprettes forbindelse til MyQ.",
+      "browser_auth_failed": "MyQ afviste godkendelsen i browseren. Åbn det nye loginlink, og prøv igen.",
+      "browser_session_expired": "Loginsessionen i browseren er udløbet. Åbn det nye loginlink, og prøv igen.",
+      "invalid_auth": "E-mailadressen eller adgangskoden er forkert.",
+      "invalid_callback": "Tilbagekaldsadressen er ugyldig eller hører til et andet loginforsøg.",
+      "invalid_mfa": "Bekræftelseskoden er ugyldig eller udløbet.",
+      "unknown": "Uventet MyQ-fejl. Se logfilerne for detaljer."
+    },
+    "abort": {
+      "cannot_connect": "Godkendelsen lykkedes, men MyQ's enhedsregistrering kunne ikke nås.",
+      "no_devices": "Der blev ikke fundet nogen garageporte på denne MyQ-konto.",
+      "reauth_successful": "MyQ blev genforbundet.",
+      "unknown": "MyQ returnerede et uventet svar."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "E-mail",
+        "sms": "Sms"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Port åben"
+      },
+      "vacation_mode": {
+        "name": "Ferietilstand"
+      },
+      "work_light": {
+        "name": "Belysning"
+      },
+      "active_fault": {
+        "name": "Aktiv fejl"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Garageport"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Status for backupbatteri"
+      },
+      "absolute_cycle_count": {
+        "name": "Samlet antal cyklusser"
+      },
+      "service_cycle_count": {
+        "name": "Cyklusser siden service"
+      },
+      "last_activation_source": {
+        "name": "Seneste aktiveringskilde"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "MyQ-kommandoen til garageporten mislykkedes."
+    }
+  }
+}
