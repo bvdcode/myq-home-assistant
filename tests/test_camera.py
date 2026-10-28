@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from aiohttp import ClientConnectionError
-from homeassistant.components.camera import async_get_image
+from homeassistant.components.camera import CameraEntityFeature, async_get_image
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
@@ -27,6 +27,7 @@ from custom_components.myq.runtime import MyQRuntimeData
 
 EMAIL = "driver@example.com"
 IMAGE = b"\xff\xd8\xff\xe0jpeg"
+STREAM_URL = "http://127.0.0.1:1234/private.h264"
 DOOR = GarageDoor(
     "account-1",
     "door-1",
@@ -47,6 +48,42 @@ async def test_camera_returns_snapshot_for_attached_camera() -> None:
     assert entity.unique_id == "door-1_camera"
     assert entity.extra_state_attributes == {"camera_serial_prefix": "TC"}
     assert entity.model == "Integrated camera"
+    assert entity.supported_features == CameraEntityFeature.STREAM
+
+
+async def test_live_stream_is_available_only_for_tc_camera() -> None:
+    tc_entity, coordinator = _entity(DOOR)
+    with patch("custom_components.myq.camera.TendLiveStream") as stream_class:
+        stream_class.return_value.source_url = AsyncMock(return_value=STREAM_URL)
+        assert await tc_entity.stream_source() == STREAM_URL
+        stream_class.assert_called_once_with(
+            "TC-0005-10000001", "door-1", coordinator.client.async_access_token
+        )
+
+    other = replace(DOOR, camera=MyQCamera("GW-0005-10000001", True))
+    other_entity, _ = _entity(other)
+    assert other_entity.supported_features == 0
+    assert await other_entity.stream_source() is None
+
+
+async def test_live_stream_starts_fresh_after_entity_is_re_added() -> None:
+    entity, _ = _entity(DOOR)
+    with patch("custom_components.myq.camera.TendLiveStream") as stream_class:
+        live = stream_class.return_value
+        live.source_url = AsyncMock(return_value=STREAM_URL)
+        live.close = AsyncMock()
+        assert await entity.stream_source() == STREAM_URL
+        ha_stream = MagicMock(stop=AsyncMock())
+
+        # Home Assistant removes and re-adds the same entity object when its entity_id changes.
+        with patch.object(entity, "stream", ha_stream):
+            await entity.async_will_remove_from_hass()
+            assert entity.stream is None
+        ha_stream.stop.assert_awaited_once()
+        live.close.assert_awaited_once()
+
+        assert await entity.stream_source() == STREAM_URL
+    assert stream_class.call_count == 2
 
 
 async def test_concurrent_snapshot_requests_share_one_capture() -> None:
