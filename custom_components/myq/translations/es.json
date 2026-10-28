@@ -64,10 +64,10 @@
       }
     },
     "error": {
-      "authentication_expired": "La sesión de inicio de sesión ha caducado. Vuelve a empezar.",
+      "authentication_expired": "La sesión ha caducado. Vuelve a empezar.",
       "cannot_connect": "No se puede conectar con MyQ.",
       "browser_auth_failed": "MyQ ha rechazado la autorización del navegador. Abre el nuevo enlace de inicio de sesión y vuelve a intentarlo.",
-      "browser_session_expired": "La sesión de inicio de sesión en el navegador ha caducado. Abre el nuevo enlace de inicio de sesión y vuelve a intentarlo.",
+      "browser_session_expired": "La sesión en el navegador ha caducado. Abre el nuevo enlace de inicio de sesión y vuelve a intentarlo.",
       "invalid_auth": "La dirección de correo electrónico o la contraseña no son correctas.",
       "invalid_callback": "La dirección de retorno no es válida o pertenece a otro intento de inicio de sesión.",
       "invalid_mfa": "El código de verificación no es válido o ha caducado.",
