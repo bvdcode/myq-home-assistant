@@ -19,6 +19,8 @@ The integration provides:
 - a door-open binary sensor for Alarmo and other sensor-based automations;
 - vacation mode, work-light, fault, cycle-count, and activation diagnostics
   when provided by MyQ;
+- camera snapshots from openers with a built-in MyQ camera, captured when
+  Home Assistant requests an image;
 - cloud polling every 30 seconds.
 
 ## Alarmo
@@ -78,6 +80,14 @@ The password is used only during sign-in and is not stored. Home Assistant
 stores the issued OAuth tokens in the config entry and refreshes them
 automatically. If MyQ rejects token refresh or account access, Home Assistant
 requests reauthentication.
+
+### Cameras
+
+Each opener with a built-in MyQ camera gets a camera entity. Snapshots come
+from MyQ's cloud and are captured when Home Assistant requests an image. To
+identify the camera generation, open **Developer Tools → States** and select the
+camera entity: its `camera_serial_prefix` and `model_name` attributes show the
+model without exposing the full serial number.
 
 ## Safety
 
