@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zvolte způsob přihlášení",
+        "description": "Doporučujeme automatické přihlášení. Pokud MyQ automatický postup blokuje, můžete se přihlásit také přes prohlížeč.",
+        "menu_options": {
+          "credentials": "Přihlásit se automaticky",
+          "browser_start": "Přihlásit se přes prohlížeč"
+        }
+      },
+      "credentials": {
+        "title": "Připojit MyQ",
+        "description": "Zadejte přihlašovací údaje k účtu MyQ.",
+        "data": {
+          "email": "E-mail",
+          "password": "Heslo",
+          "mfa_method": "Posílat ověřovací kódy přes"
+        }
+      },
+      "browser_start": {
+        "title": "Přihlásit se přes prohlížeč",
+        "description": "Zadejte e-mailovou adresu účtu MyQ. Heslo a ověřovací kód zadáte pouze na webu MyQ.",
+        "data": {
+          "email": "E-mail"
+        }
+      },
+      "mfa": {
+        "title": "Ověřovací kód",
+        "description": "Zadejte šestimístný ověřovací kód, který jste obdrželi.",
+        "data": {
+          "code": "Ověřovací kód"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Znovu připojit MyQ",
+        "description": "Zvolte, jak znovu připojit {email}.",
+        "menu_options": {
+          "reauth_credentials": "Přihlásit se automaticky",
+          "browser_start": "Přihlásit se přes prohlížeč"
+        }
+      },
+      "reauth_credentials": {
+        "title": "Znovu připojit MyQ",
+        "description": "Zadejte aktuální heslo pro {email}.",
+        "data": {
+          "password": "Heslo",
+          "mfa_method": "Posílat ověřovací kódy přes"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Ověřovací kód",
+        "description": "Zadejte šestimístný ověřovací kód, který jste obdrželi.",
+        "data": {
+          "code": "Ověřovací kód"
+        }
+      },
+      "browser": {
+        "title": "Přihlásit se přes prohlížeč",
+        "description": "[Otevřete přihlášení MyQ]({authorization_url}) v prohlížeči a přihlaste se jako {email}. Když se prohlížeč pokusí otevřít `com.myqops://android`, zkopírujte celou adresu zpětného volání a vložte ji níže. Pokud se žádná adresa nezobrazí, stiskněte F12, otevřete konzoli prohlížeče, najděte zprávu `Failed to launch 'com.myqops://android?...'` a zkopírujte z ní celou adresu. Platnost odkazu vyprší za 10 minut.",
+        "data": {
+          "callback_url": "Adresa zpětného volání"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "Platnost přihlašovací relace vypršela. Začněte znovu.",
+      "cannot_connect": "Nelze se připojit k MyQ.",
+      "browser_auth_failed": "MyQ odmítlo autorizaci z prohlížeče. Otevřete nový přihlašovací odkaz a zkuste to znovu.",
+      "browser_session_expired": "Platnost přihlašovací relace v prohlížeči vypršela. Otevřete nový přihlašovací odkaz a zkuste to znovu.",
+      "invalid_auth": "E-mailová adresa nebo heslo nejsou správné.",
+      "invalid_callback": "Adresa zpětného volání je neplatná nebo patří k jinému pokusu o přihlášení.",
+      "invalid_mfa": "Ověřovací kód je neplatný nebo jeho platnost vypršela.",
+      "unknown": "Neočekávaná chyba MyQ. Podrobnosti najdete v protokolech."
+    },
+    "abort": {
+      "cannot_connect": "Ověření proběhlo úspěšně, ale služba vyhledávání zařízení MyQ není dostupná.",
+      "no_devices": "V tomto účtu MyQ nebyla nalezena žádná garážová vrata.",
+      "reauth_successful": "MyQ bylo úspěšně znovu připojeno.",
+      "unknown": "MyQ vrátilo neočekávanou odpověď."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "E-mail",
+        "sms": "Textová zpráva (SMS)"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Vrata otevřena"
+      },
+      "vacation_mode": {
+        "name": "Režim dovolené"
+      },
+      "work_light": {
+        "name": "Osvětlení"
+      },
+      "active_fault": {
+        "name": "Aktivní porucha"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Garážová vrata"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Stav záložní baterie"
+      },
+      "absolute_cycle_count": {
+        "name": "Celkový počet cyklů"
+      },
+      "service_cycle_count": {
+        "name": "Cykly od servisu"
+      },
+      "last_activation_source": {
+        "name": "Zdroj poslední aktivace"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "Příkaz MyQ pro garážová vrata selhal."
+    }
+  }
+}

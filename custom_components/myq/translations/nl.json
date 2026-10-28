@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kies een aanmeldmethode",
+        "description": "Automatisch aanmelden wordt aanbevolen. Als MyQ de automatische procedure blokkeert, kun je je ook via een browser aanmelden.",
+        "menu_options": {
+          "credentials": "Automatisch aanmelden",
+          "browser_start": "Aanmelden met een browser"
+        }
+      },
+      "credentials": {
+        "title": "MyQ verbinden",
+        "description": "Voer de inloggegevens van je MyQ-account in.",
+        "data": {
+          "email": "E-mail",
+          "password": "Wachtwoord",
+          "mfa_method": "Verificatiecodes versturen via"
+        }
+      },
+      "browser_start": {
+        "title": "Aanmelden met een browser",
+        "description": "Voer het e-mailadres van je MyQ-account in. Je wachtwoord en verificatiecode voer je alleen in op de website van MyQ.",
+        "data": {
+          "email": "E-mail"
+        }
+      },
+      "mfa": {
+        "title": "Verificatiecode",
+        "description": "Voer de zescijferige verificatiecode in die je hebt ontvangen.",
+        "data": {
+          "code": "Verificatiecode"
+        }
+      },
+      "reauth_confirm": {
+        "title": "MyQ opnieuw verbinden",
+        "description": "Kies hoe je {email} opnieuw wilt verbinden.",
+        "menu_options": {
+          "reauth_credentials": "Automatisch aanmelden",
+          "browser_start": "Aanmelden met een browser"
+        }
+      },
+      "reauth_credentials": {
+        "title": "MyQ opnieuw verbinden",
+        "description": "Voer het huidige wachtwoord voor {email} in.",
+        "data": {
+          "password": "Wachtwoord",
+          "mfa_method": "Verificatiecodes versturen via"
+        }
+      },
+      "reauth_mfa": {
+        "title": "Verificatiecode",
+        "description": "Voer de zescijferige verificatiecode in die je hebt ontvangen.",
+        "data": {
+          "code": "Verificatiecode"
+        }
+      },
+      "browser": {
+        "title": "Aanmelden met een browser",
+        "description": "[Open de MyQ-aanmeldpagina]({authorization_url}) in een browser en meld je aan met {email}. Wanneer de browser `com.myqops://android` probeert te openen, kopieer je het volledige callback-adres en plak je het hieronder. Verschijnt er geen adres, druk dan op F12, open de browserconsole, zoek het bericht `Failed to launch 'com.myqops://android?...'` en kopieer daaruit het volledige adres. De link verloopt na 10 minuten.",
+        "data": {
+          "callback_url": "Callback-adres"
+        }
+      }
+    },
+    "error": {
+      "authentication_expired": "De aanmeldsessie is verlopen. Begin opnieuw.",
+      "cannot_connect": "Kan geen verbinding maken met MyQ.",
+      "browser_auth_failed": "MyQ heeft de browserautorisatie geweigerd. Open de nieuwe aanmeldlink en probeer het opnieuw.",
+      "browser_session_expired": "De aanmeldsessie in de browser is verlopen. Open de nieuwe aanmeldlink en probeer het opnieuw.",
+      "invalid_auth": "Het e-mailadres of wachtwoord is onjuist.",
+      "invalid_callback": "Het callback-adres is ongeldig of hoort bij een andere aanmeldpoging.",
+      "invalid_mfa": "De verificatiecode is ongeldig of verlopen.",
+      "unknown": "Onverwachte MyQ-fout. Bekijk de logboeken voor details."
+    },
+    "abort": {
+      "cannot_connect": "De authenticatie is gelukt, maar de apparaatdetectie van MyQ was niet bereikbaar.",
+      "no_devices": "Er zijn geen garagedeuren gevonden in dit MyQ-account.",
+      "reauth_successful": "MyQ is opnieuw verbonden.",
+      "unknown": "MyQ gaf een onverwacht antwoord."
+    }
+  },
+  "selector": {
+    "mfa_method": {
+      "options": {
+        "email": "E-mail",
+        "sms": "Sms"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "door_open": {
+        "name": "Deur open"
+      },
+      "vacation_mode": {
+        "name": "Vakantiemodus"
+      },
+      "work_light": {
+        "name": "Verlichting"
+      },
+      "active_fault": {
+        "name": "Actieve storing"
+      }
+    },
+    "cover": {
+      "garage_door": {
+        "name": "Garagedeur"
+      }
+    },
+    "sensor": {
+      "battery_backup_state": {
+        "name": "Status noodstroomaccu"
+      },
+      "absolute_cycle_count": {
+        "name": "Totaal aantal cycli"
+      },
+      "service_cycle_count": {
+        "name": "Cycli sinds onderhoud"
+      },
+      "last_activation_source": {
+        "name": "Bron van laatste activering"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "De MyQ-opdracht voor de garagedeur is mislukt."
+    }
+  }
+}
