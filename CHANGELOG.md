@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v0.2.7 (2026-10-30)
+
+### Bug Fixes
+
+- Update links after repository rename
+  ([`5de8929`](https://github.com/bvdcode/home-assistant-myq/commit/5de89294e26bb7b4949de691f8a7d9568a228ed8))
+
+### Features
+
+- **translations**: Add eleven languages with translation validation
+  ([#8](https://github.com/bvdcode/home-assistant-myq/pull/8),
+  [`b9ce271`](https://github.com/bvdcode/home-assistant-myq/commit/b9ce2717438bb32748e67af857b7172b58465df6))
+
+
 ## v0.2.6 (2026-10-09)
 
 ### Refactoring
