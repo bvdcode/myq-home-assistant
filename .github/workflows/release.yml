@@ -60,21 +60,64 @@ jobs:
       - name: Validate with Hassfest
         uses: home-assistant/actions/hassfest@ab22029681aa532bfe7de5774a9972d67bfbd2c0
 
-      - name: Create semantic version
-        id: release
-        uses: python-semantic-release/python-semantic-release@v10.6.1
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          git_committer_name: github-actions[bot]
-          git_committer_email: 41898282+github-actions[bot]@users.noreply.github.com
-          vcs_release: "false"
-          force: patch
+          dotnet-version: 10.0.x
 
-      - name: Prepare release notes
-        if: steps.release.outputs.released == 'true'
+      - name: Install GitVersion
+        uses: GitTools/actions/gitversion/setup@v4.7.0
+        with:
+          versionSpec: 6.8.2
+
+      - name: Determine version
+        id: gitversion
+        uses: GitTools/actions/gitversion/execute@v4.7.0
+
+      - name: Prepare versioned release
+        id: release
         env:
-          RELEASE_NOTES: ${{ steps.release.outputs.release_notes }}
-        run: printf '%s\n' "$RELEASE_NOTES" > release-notes.md
+          RELEASE_VERSION: ${{ steps.gitversion.outputs.MajorMinorPatch }}
+        run: |
+          set -euo pipefail
+          tag="v$RELEASE_VERSION"
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git log -1 --format=%B "$GITHUB_SHA" > release-notes.md
+          python - "$RELEASE_VERSION" <<'PY'
+          import json
+          import sys
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          version = sys.argv[1]
+          path = Path("custom_components/myq/manifest.json")
+          manifest: dict[str, object] = json.loads(path.read_text())
+          manifest["version"] = version
+          path.write_text(json.dumps(manifest, indent=2) + "\n")
+          changelog = Path("CHANGELOG.md")
+          content = changelog.read_text()
+          marker = "<!-- version list -->"
+          if content.count(marker) != 1:
+              raise RuntimeError("Expected one version list marker in CHANGELOG.md")
+          notes = Path("release-notes.md").read_text().strip()
+          date = datetime.now(UTC).date().isoformat()
+          entry = f"\n\n## v{version} ({date})\n\n{notes}\n"
+          changelog.write_text(content.replace(marker, marker + entry, 1))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add custom_components/myq/manifest.json CHANGELOG.md
+          git commit -m "chore(release): $RELEASE_VERSION"
+          git tag "$tag"
+          git push --atomic origin HEAD:main "$tag"
+          {
+            echo "released=true"
+            echo "tag=$tag"
+            echo "version=$RELEASE_VERSION"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Package integration
         if: steps.release.outputs.released == 'true'
