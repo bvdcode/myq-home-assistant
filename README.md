@@ -1,8 +1,8 @@
 # MyQ for Home Assistant
 
-[![CI](https://github.com/bvdcode/myq-home-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/bvdcode/myq-home-assistant/actions/workflows/ci.yml)
-[![HACS](https://github.com/bvdcode/myq-home-assistant/actions/workflows/hacs.yml/badge.svg)](https://github.com/bvdcode/myq-home-assistant/actions/workflows/hacs.yml)
-[![Hassfest](https://github.com/bvdcode/myq-home-assistant/actions/workflows/hassfest.yml/badge.svg)](https://github.com/bvdcode/myq-home-assistant/actions/workflows/hassfest.yml)
+[![CI](https://github.com/bvdcode/home-assistant-myq/actions/workflows/ci.yml/badge.svg)](https://github.com/bvdcode/home-assistant-myq/actions/workflows/ci.yml)
+[![HACS](https://github.com/bvdcode/home-assistant-myq/actions/workflows/hacs.yml/badge.svg)](https://github.com/bvdcode/home-assistant-myq/actions/workflows/hacs.yml)
+[![Hassfest](https://github.com/bvdcode/home-assistant-myq/actions/workflows/hassfest.yml/badge.svg)](https://github.com/bvdcode/home-assistant-myq/actions/workflows/hassfest.yml)
 [![Support on Ko-fi](https://img.shields.io/badge/Support_on_Ko--fi-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/bvdcode)
 
 MyQ connects Chamberlain and LiftMaster garage-door openers to Home Assistant
@@ -39,12 +39,12 @@ from other regions are welcome.
 
 The integration can be installed through HACS as a custom repository.
 
-[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bvdcode&repository=myq-home-assistant&category=integration)
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bvdcode&repository=home-assistant-myq&category=integration)
 
 1. Open **HACS**.
 2. Select **Integrations**.
 3. Open the menu and select **Custom repositories**.
-4. Add `https://github.com/bvdcode/myq-home-assistant` as an **Integration**
+4. Add `https://github.com/bvdcode/home-assistant-myq` as an **Integration**
    repository.
 5. Install **MyQ** and restart Home Assistant.
 

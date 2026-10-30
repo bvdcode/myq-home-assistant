@@ -3,9 +3,9 @@
   "name": "MyQ",
   "codeowners": ["@bvdcode"],
   "config_flow": true,
-  "documentation": "https://github.com/bvdcode/myq-home-assistant",
+  "documentation": "https://github.com/bvdcode/home-assistant-myq",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/bvdcode/myq-home-assistant/issues",
+  "issue_tracker": "https://github.com/bvdcode/home-assistant-myq/issues",
   "version": "0.2.6"
 }
