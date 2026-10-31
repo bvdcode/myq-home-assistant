@@ -1,6 +1,7 @@
 {
   "domain": "myq",
   "name": "MyQ",
+  "after_dependencies": ["stream"],
   "codeowners": ["@bvdcode"],
   "config_flow": true,
   "documentation": "https://github.com/bvdcode/home-assistant-myq",

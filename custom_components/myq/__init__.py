@@ -25,6 +25,7 @@ from .runtime import (
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 PLATFORMS: tuple[Platform, ...] = (
     Platform.BINARY_SENSOR,
+    Platform.CAMERA,
     Platform.COVER,
     Platform.SENSOR,
 )

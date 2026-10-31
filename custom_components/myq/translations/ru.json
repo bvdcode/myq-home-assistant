@@ -103,6 +103,11 @@
         "name": "Активная неисправность"
       }
     },
+    "camera": {
+      "camera": {
+        "name": "Камера"
+      }
+    },
     "cover": {
       "garage_door": {
         "name": "Гаражная дверь"
@@ -126,6 +131,9 @@
   "exceptions": {
     "command_failed": {
       "message": "Не удалось выполнить команду гаражной двери MyQ."
+    },
+    "camera_image_failed": {
+      "message": "Не удалось получить снимок камеры MyQ."
     }
   }
 }

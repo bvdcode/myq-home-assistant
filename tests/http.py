@@ -9,7 +9,7 @@ from typing import Any
 class FakeResponse:
     url: str
     status: int = 200
-    body: str = ""
+    body: str | bytes = ""
     headers: Mapping[str, str] = field(default_factory=dict)
 
     async def __aenter__(self) -> FakeResponse:
@@ -19,7 +19,10 @@ class FakeResponse:
         del args
 
     async def text(self) -> str:
-        return self.body
+        return self.body.decode() if isinstance(self.body, bytes) else self.body
+
+    async def read(self) -> bytes:
+        return self.body.encode() if isinstance(self.body, str) else self.body
 
 
 @dataclass(frozen=True, slots=True)

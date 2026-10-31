@@ -103,6 +103,11 @@
         "name": "Active fault"
       }
     },
+    "camera": {
+      "camera": {
+        "name": "Camera"
+      }
+    },
     "cover": {
       "garage_door": {
         "name": "Garage door"
@@ -126,6 +131,9 @@
   "exceptions": {
     "command_failed": {
       "message": "The MyQ garage-door command failed."
+    },
+    "camera_image_failed": {
+      "message": "The MyQ camera snapshot could not be retrieved."
     }
   }
 }
